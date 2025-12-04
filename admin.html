@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DiverS - Панель администратора</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1a3a5f;
+            --secondary-color: #00a8ff;
+            --accent-color: #ff6b6b;
+            --dark-bg: #0f1a2e;
+            --light-bg: #1e2a47;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark-bg);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .auth-container {
+            background: linear-gradient(145deg, rgba(30,42,71,0.95) 0%, rgba(26,58,95,0.95) 100%);
+            border-radius: 15px;
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            border: 2px solid var(--secondary-color);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .admin-container {
+            background: rgba(15, 26, 46, 0.95);
+            min-height: 100vh;
+            width: 100%;
+            padding-top: 80px;
+        }
+        
+        .navbar {
+            background: rgba(26, 58, 95, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--secondary-color);
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: var(--secondary-color) !important;
+        }
+        
+        .btn-game {
+            background: linear-gradient(45deg, var(--secondary-color), #0088cc);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-game:hover {
+            background: linear-gradient(45deg, #0088cc, var(--secondary-color));
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 168, 255, 0.4);
+        }
+        
+        .product-card {
+            background: linear-gradient(145deg, rgba(30,42,71,0.9) 0%, rgba(26,58,95,0.9) 100%);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+            border: 1px solid rgba(0, 168, 255, 0.2);
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 168, 255, 0.2);
+            border-color: var(--secondary-color);
+        }
+        
+        .form-control {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid var(--secondary-color);
+            color: white;
+        }
+        
+        .form-control:focus {
+            background: rgba(255,255,255,0.15);
+            border-color: var(--secondary-color);
+            color: white;
+            box-shadow: 0 0 0 0.25rem rgba(0, 168, 255, 0.25);
+        }
+        
+        .form-label {
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+        
+        .alert {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .category-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .table-dark {
+            background: rgba(30,42,71,0.8);
+        }
+        
+        .table-dark th {
+            border-color: var(--secondary-color);
+            color: var(--secondary-color);
+        }
+        
+        .table-dark td {
+            border-color: rgba(0, 168, 255, 0.2);
+            vertical-align: middle;
+        }
+        
+        .modal-content {
+            background: linear-gradient(145deg, #1a3a5f, #0f1a2e);
+            color: white;
+            border: 2px solid var(--secondary-color);
+        }
+        
+        .modal-header {
+            border-bottom: 1px solid var(--secondary-color);
+        }
+        
+        .modal-footer {
+            border-top: 1px solid var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Контейнер для авторизации -->
+    <div class="auth-container" id="auth-container">
+        <div class="text-center mb-4">
+            <h2 style="color: var(--secondary-color);">
+                <i class="fas fa-lock me-2"></i>Панель администратора
+            </h2>
+            <p class="text-muted">DiverS - Магазин TimeZero</p>
+        </div>
+        
+        <form id="login-form">
+            <div class="mb-3">
+                <label for="username" class="form-label">Логин</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                    <input type="text" class="form-control" id="username" placeholder="Введите логин" required>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <label for="password" class="form-label">Пароль</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-key"></i></span>
+                    <input type="password" class="form-control" id="password" placeholder="Введите пароль" required>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-game w-100">
+                <i class="fas fa-sign-in-alt me-2"></i>Войти
+            </button>
+            
+            <div class="text-center mt-3">
+                <a href="../index.html" class="text-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Вернуться в магазин
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Контейнер для административной панели (скрыт по умолчанию) -->
+    <div class="admin-container" id="admin-container" style="display: none;">
+        <!-- Навигация -->
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+            <div class="container">
+                <a class="navbar-brand" href="#">
+                    <i class="fas fa-cogs me-2"></i>DiverS Admin
+                </a>
+                <div class="d-flex">
+                    <span class="navbar-text me-3">
+                        <i class="fas fa-user me-1"></i>
+                        <span id="admin-username"></span>
+                    </span>
+                    <button class="btn btn-outline-danger btn-sm" id="logout-btn">
+                        <i class="fas fa-sign-out-alt me-1"></i>Выйти
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container mt-4">
+            <h2 class="text-center mb-4" style="color: var(--secondary-color);">
+                <i class="fas fa-boxes me-2"></i>Управление товарами
+            </h2>
+            
+            <!-- Статистика -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="product-card text-center p-3">
+                        <h5>Всего товаров</h5>
+                        <h3 id="total-products">0</h3>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="product-card text-center p-3">
+                        <h5>Категорий</h5>
+                        <h3 id="total-categories">6</h3>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="product-card text-center p-3">
+                        <h5>Последнее обновление</h5>
+                        <h6 id="last-update">-</h6>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="product-card text-center p-3">
+                        <h5>Действия</h5>
+                        <button class="btn btn-game btn-sm" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                            <i class="fas fa-plus me-1"></i>Добавить товар
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Таблица товаров -->
+            <div class="product-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4>Список товаров</h4>
+                    <div class="input-group" style="max-width: 300px;">
+                        <input type="text" class="form-control" placeholder="Поиск товаров..." id="search-products">
+                        <button class="btn btn-outline-secondary" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Изображение</th>
+                                <th>Название</th>
+                                <th>Категория</th>
+                                <th>Цена</th>
+                                <th>Особенности</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-table">
+                            <!-- Товары будут загружены через JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно добавления товара -->
+    <div class="modal fade" id="addProductModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Добавить новый товар</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-product-form">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="new-product-name" class="form-label">Название товара</label>
+                                <input type="text" class="form-control" id="new-product-name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="new-product-category" class="form-label">Категория</label>
+                                <select class="form-control" id="new-product-category" required>
+                                    <option value="armor">Броня</option>
+                                    <option value="weapons">Оружие</option>
+                                    <option value="medicine">Медицина</option>
+                                    <option value="attachments">Встройки</option>
+                                    <option value="ammo">Патроны</option>
+                                    <option value="throwable">Метательное</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="new-product-description" class="form-label">Описание</label>
+                            <textarea class="form-control" id="new-product-description" rows="2" required></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="new-product-price" class="form-label">Цена</label>
+                                <input type="number" class="form-control" id="new-product-price" min="1" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="new-product-image" class="form-label">Ссылка на изображение</label>
+                                <input type="url" class="form-control" id="new-product-image" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Особенности</label>
+                            <div id="features-container">
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control feature-input" placeholder="Особенность товара">
+                                    <button class="btn btn-outline-danger" type="button" onclick="removeFeature(this)">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addFeatureField()">
+                                <i class="fas fa-plus me-1"></i>Добавить особенность
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-game" id="save-product-btn">
+                        <i class="fas fa-save me-1"></i>Сохранить товар
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно редактирования товара -->
+    <div class="modal fade" id="editProductModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Редактировать товар</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-product-form">
+                        <input type="hidden" id="edit-product-id">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="edit-product-name" class="form-label">Название товара</label>
+                                <input type="text" class="form-control" id="edit-product-name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="edit-product-category" class="form-label">Категория</label>
+                                <select class="form-control" id="edit-product-category" required>
+                                    <option value="armor">Броня</option>
+                                    <option value="weapons">Оружие</option>
+                                    <option value="medicine">Медицина</option>
+                                    <option value="attachments">Встройки</option>
+                                    <option value="ammo">Патроны</option>
+                                    <option value="throwable">Метательное</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="edit-product-description" class="form-label">Описание</label>
+                            <textarea class="form-control" id="edit-product-description" rows="2" required></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="edit-product-price" class="form-label">Цена</label>
+                                <input type="number" class="form-control" id="edit-product-price" min="1" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="edit-product-image" class="form-label">Ссылка на изображение</label>
+                                <input type="url" class="form-control" id="edit-product-image" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Особенности</label>
+                            <div id="edit-features-container">
+                                <!-- Особенности будут добавлены динамически -->
+                            </div>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addEditFeatureField()">
+                                <i class="fas fa-plus me-1"></i>Добавить особенность
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-game" id="update-product-btn">
+                        <i class="fas fa-sync me-1"></i>Обновить товар
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Данные администраторов (в реальном приложении это должно быть на сервере)
+        const ADMIN_CREDENTIALS = {
+            username: "admin",
+            password: "admin123"
+        };
+
+        // Проверка авторизации при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            const isLoggedIn = localStorage.getItem('admin_logged_in');
+            const username = localStorage.getItem('admin_username');
+            
+            if (isLoggedIn === 'true' && username) {
+                showAdminPanel(username);
+            }
+            
+            // Обработка формы входа
+            document.getElementById('login-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+                    localStorage.setItem('admin_logged_in', 'true');
+                    localStorage.setItem('admin_username', username);
+                    showAdminPanel(username);
+                    showAlert('Успешный вход!', 'success');
+                } else {
+                    showAlert('Неверный логин или пароль!', 'danger');
+                }
+            });
+            
+            // Выход из системы
+            document.getElementById('logout-btn')?.addEventListener('click', function() {
+                localStorage.removeItem('admin_logged_in');
+                localStorage.removeItem('admin_username');
+                location.reload();
+            });
+            
+            // Загрузка товаров в админке
+            if (isLoggedIn === 'true') {
+                loadProducts();
+                
+                // Поиск товаров
+                document.getElementById('search-products')?.addEventListener('input', function(e) {
+                    filterProducts(e.target.value);
+                });
+                
+                // Добавление товара
+                document.getElementById('save-product-btn')?.addEventListener('click', function() {
+                    saveProduct();
+                });
+                
+                // Обновление товара
+                document.getElementById('update-product-btn')?.addEventListener('click', function() {
+                    updateProduct();
+                });
+            }
+        });
+        
+        // Показать панель администратора
+        function showAdminPanel(username) {
+            document.getElementById('auth-container').style.display = 'none';
+            document.getElementById('admin-container').style.display = 'block';
+            document.getElementById('admin-username').textContent = username;
+            loadProducts();
+        }
+        
+        // Загрузка товаров
+        function loadProducts() {
+            const products = JSON.parse(localStorage.getItem('divers_products')) || getDefaultProducts();
+            renderProductsTable(products);
+            updateStats(products);
+        }
+        
+        // Получение товаров по умолчанию
+        function getDefaultProducts() {
+            const defaultProducts = [
+                {
+                    id: 1,
+                    name: "Бронежилет 'Штурмовик'",
+                    description: "Тяжелый бронежилет с защитой 5 класса",
+                    price: 1250,
+                    category: "armor",
+                    image: "https://images.unsplash.com/photo-1588347818030-f6cf3ddf9c6f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+                    features: ["Защита 5 класса", "10 слотов для встроек", "Устойчивость к пулям"]
+                },
+                {
+                    id: 2,
+                    name: "Шлем 'Снайпер'",
+                    description: "Легкий шлем с маскировкой и защитой головы",
+                    price: 850,
+                    category: "armor",
+                    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+                    features: ["Защита 3 класса", "Камуфляж", "Крепление для ПНВ"]
+                },
+                {
+                    id: 3,
+                    name: "АК-74М 'Вепрь'",
+                    description: "Модернизированный автомат Калашникова",
+                    price: 2200,
+                    category: "weapons",
+                    image: "https://images.unsplash.com/photo-1595263181851-3c9c8d8c1c0e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+                    features: ["5.45×39 мм", "750 выстр/мин", "30 патронов в магазине"]
+                }
+            ];
+            
+            localStorage.setItem('divers_products', JSON.stringify(defaultProducts));
+            return defaultProducts;
+        }
+        
+        // Отображение таблицы товаров
+        function renderProductsTable(products) {
+            const tableBody = document.getElementById('products-table');
+            tableBody.innerHTML = '';
+            
+            products.forEach(product => {
+                const categoryColors = {
+                    'armor': '#3498db',
+                    'weapons': '#e74c3c',
+                    'medicine': '#2ecc71',
+                    'attachments': '#9b59b6',
+                    'ammo': '#f39c12',
+                    'throwable': '#1abc9c'
+                };
+                
+                const categoryNames = {
+                    'armor': 'Броня',
+                    'weapons': 'Оружие',
+                    'medicine': 'Медицина',
+                    'attachments': 'Встройки',
+                    'ammo': 'Патроны',
+                    'throwable': 'Метательное'
+                };
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${product.id}</td>
+                    <td>
+                        <img src="${product.image}" alt="${product.name}" 
+                             style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;">
+                    </td>
+                    <td>
+                        <strong>${product.name}</strong><br>
+                        <small class="text-muted">${product.description.substring(0, 50)}...</small>
+                    </td>
+                    <td>
+                        <span class="category-badge" style="background: ${categoryColors[product.category] || '#666'}">
+                            ${categoryNames[product.category] || product.category}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge bg-warning text-dark">${product.price} <i class="fas fa-coins"></i></span>
+                    </td>
+                    <td>
+                        ${product.features ? product.features.slice(0, 2).map(f => 
+                            `<span class="badge bg-secondary d-block mb-1">${f}</span>`
+                        ).join('') : ''}
+                        ${product.features && product.features.length > 2 ? 
+                            `<small class="text-muted">+${product.features.length - 2} еще</small>` : ''}
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="editProduct(${product.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct(${product.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // Обновление статистики
+        function updateStats(products) {
+            document.getElementById('total-products').textContent = products.length;
+            
+            const categories = new Set(products.map(p => p.category));
+            document.getElementById('total-categories').textContent = categories.size;
+            
+            const now = new Date();
+            document.getElementById('last-update').textContent = 
+                `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+        }
+        
+        // Фильтрация товаров
+        function filterProducts(searchTerm) {
+            const products = JSON.parse(localStorage.getItem('divers_products')) || [];
+            const filtered = products.filter(product => 
+                product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                product.category.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            renderProductsTable(filtered);
+        }
+        
+        // Добавление поля особенности
+        function addFeatureField() {
+            const container = document.getElementById('features-container');
+            const div = document.createElement('div');
+            div.className = 'input-group mb-2';
+            div.innerHTML = `
+                <input type="text" class="form-control feature-input" placeholder="Особенность товара">
+                <button class="btn btn-outline-danger" type="button" onclick="removeFeature(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            container.appendChild(div);
+        }
+        
+        // Добавление поля особенности в редакторе
+        function addEditFeatureField() {
+            const container = document.getElementById('edit-features-container');
+            const div = document.createElement('div');
+            div.className = 'input-group mb-2';
+            div.innerHTML = `
+                <input type="text" class="form-control edit-feature-input" placeholder="Особенность товара">
+                <button class="btn btn-outline-danger" type="button" onclick="removeEditFeature(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            container.appendChild(div);
+        }
+        
+        // Удаление поля особенности
+        function removeFeature(button) {
+            button.closest('.input-group').remove();
+        }
+        
+        // Удаление поля особенности в редакторе
+        function removeEditFeature(button) {
+            button.closest('.input-group').remove();
+        }
+        
+        // Сохранение нового товара
+        function saveProduct() {
+            const name = document.getElementById('new-product-name').value;
+            const category = document.getElementById('new-product-category').value;
+            const description = document.getElementById('new-product-description').value;
+            const price = parseInt(document.getElementById('new-product-price').value);
+            const image = document.getElementById('new-product-image').value;
+            
+            // Сбор особенностей
+            const featureInputs = document.querySelectorAll('.feature-input');
+            const features = Array.from(featureInputs)
+                .map(input => input.value.trim())
+                .filter(value => value !== '');
+            
+            if (!name || !description || !price || !image) {
+                showAlert('Заполните все обязательные поля!', 'danger');
+                return;
+            }
+            
+            const products = JSON.parse(localStorage.getItem('divers_products')) || [];
+            
+            // Генерация нового ID
+            const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+            
+            const newProduct = {
+                id: newId,
+                name,
+                category,
+                description,
+                price,
+                image,
+                features
+            };
+            
+            products.push(newProduct);
+            localStorage.setItem('divers_products', JSON.stringify(products));
+            
+            // Закрытие модального окна
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addProductModal'));
+            modal.hide();
+            
+            // Очистка формы
+            document.getElementById('add-product-form').reset();
+            document.getElementById('features-container').innerHTML = `
+                <div class="input-group mb-2">
+                    <input type="text" class="form-control feature-input" placeholder="Особенность товара">
+                    <button class="btn btn-outline-danger" type="button" onclick="removeFeature(this)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            
+            // Обновление интерфейса
+            loadProducts();
+            showAlert('Товар успешно добавлен!', 'success');
+        }
+        
+        // Редактирование товара
+        function editProduct(productId) {
+            const products = JSON.parse(localStorage.getItem('divers_products')) || [];
+            const product = products.find(p => p.id === productId);
+            
+            if (!product) return;
+            
+            // Заполнение формы
+            document.getElementById('edit-product-id').value = product.id;
+            document.getElementById('edit-product-name').value = product.name;
+            document.getElementById('edit-product-category').value = product.category;
+            document.getElementById('edit-product-description').value = product.description;
+            document.getElementById('edit-product-price').value = product.price;
+            document.getElementById('edit-product-image').value = product.image;
+            
+            // Очистка контейнера особенностей
+            const featuresContainer = document.getElementById('edit-features-container');
+            featuresContainer.innerHTML = '';
+            
+            // Добавление особенностей
+            if (product.features && product.features.length > 0) {
+                product.features.forEach(feature => {
+                    const div = document.createElement('div');
+                    div.className = 'input-group mb-2';
+                    div.innerHTML = `
+                        <input type="text" class="form-control edit-feature-input" value="${feature}">
+                        <button class="btn btn-outline-danger" type="button" onclick="removeEditFeature(this)">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    featuresContainer.appendChild(div);
+                });
+            } else {
+                const div = document.createElement('div');
+                div.className = 'input-group mb-2';
+                div.innerHTML = `
+                    <input type="text" class="form-control edit-feature-input" placeholder="Особенность товара">
+                    <button class="btn btn-outline-danger" type="button" onclick="removeEditFeature(this)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                featuresContainer.appendChild(div);
+            }
+            
+            // Показать модальное окно
+            const modal = new bootstrap.Modal(document.getElementById('editProductModal'));
+            modal.show();
+        }
+        
+        // Обновление товара
+        function updateProduct() {
+            const productId = parseInt(document.getElementById('edit-product-id').value);
+            const name = document.getElementById('edit-product-name').value;
+            const category = document.getElementById('edit-product-category').value;
+            const description = document.getElementById('edit-product-description').value;
+            const price = parseInt(document.getElementById('edit-product-price').value);
+            const image = document.getElementById('edit-product-image').value;
+            
+            // Сбор особенностей
+            const featureInputs = document.querySelectorAll('.edit-feature-input');
+            const features = Array.from(featureInputs)
+                .map(input => input.value.trim())
+                .filter(value => value !== '');
+            
+            if (!name || !description || !price || !image) {
+                showAlert('Заполните все обязательные поля!', 'danger');
+                return;
+            }
+            
+            let products = JSON.parse(localStorage.getItem('divers_products')) || [];
+            const productIndex = products.findIndex(p => p.id === productId);
+            
+            if (productIndex === -1) {
+                showAlert('Товар не найден!', 'danger');
+                return;
+            }
+            
+            // Обновление товара
+            products[productIndex] = {
+                id: productId,
+                name,
+                category,
+                description,
+                price,
+                image,
+                features
+            };
+            
+            localStorage.setItem('divers_products', JSON.stringify(products));
+            
+            // Закрытие модального окна
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editProductModal'));
+            modal.hide();
+            
+            // Обновление интерфейса
+            loadProducts();
+            showAlert('Товар успешно обновлен!', 'success');
+        }
+        
+        // Удаление товара
+        function deleteProduct(productId) {
+            if (!confirm('Вы уверены, что хотите удалить этот товар?')) return;
+            
+            let products = JSON.parse(localStorage.getItem('divers_products')) || [];
+            products = products.filter(p => p.id !== productId);
+            
+            localStorage.setItem('divers_products', JSON.stringify(products));
+            loadProducts();
+            showAlert('Товар успешно удален!', 'success');
+        }
+        
+        // Показать уведомление
+        function showAlert(message, type) {
+            // Удалить старые уведомления
+            const oldAlerts = document.querySelectorAll('.alert');
+            oldAlerts.forEach(alert => alert.remove());
+            
+            // Создать новое уведомление
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(alertDiv);
+            
+            // Автоматическое удаление через 3 секунды
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
