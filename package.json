@@ -1,0 +1,8 @@
+{
+  "name": "divers-store",
+  "version": "1.0.0",
+  "description": "Магазин игровых предметов TimeZero",
+  "dependencies": {
+    "node-fetch": "^2.6.7"
+  }
+}
