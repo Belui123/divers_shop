@@ -1008,7 +1008,7 @@
         // Дефолтные товары
         const DEFAULT_PRODUCTS = [
             {
-                id: 1,
+                id: "1",
                 name: "Бронежилет 'Штурмовик'",
                 description: "Тяжелый бронежилет с защитой 5 класса",
                 price: 1250.50,
@@ -1017,7 +1017,7 @@
                 features: ["Защита 5 класса", "10 слотов для встроек", "Устойчивость к пулям"]
             },
             {
-                id: 2,
+                id: "2",
                 name: "Шлем 'Снайпер'",
                 description: "Легкий шлем с маскировкой и защитой головы",
                 price: 850.75,
@@ -1026,7 +1026,7 @@
                 features: ["Защита 3 класса", "Камуфляж", "Крепление для ПНВ"]
             },
             {
-                id: 3,
+                id: "3",
                 name: "АК-47 'Волк'",
                 description: "Модернизированный автомат Калашникова",
                 price: 2200.00,
@@ -1035,7 +1035,7 @@
                 features: ["Калибр 7.62мм", "Прицел ПСО-1", "30 патронов в магазине"]
             },
             {
-                id: 4,
+                id: "4",
                 name: "Аптечка первой помощи",
                 description: "Комплект для восстановления здоровья",
                 price: 450.25,
@@ -1401,111 +1401,111 @@
             return text.substring(0, maxLength) + '...';
         }
         
-function importExcelData() {
-    if (!excelData || excelData.length === 0) {
-        showAlert('Нет данных для импорта', 'warning');
-        return;
-    }
-    
-    try {
-        // Преобразуем данные из Excel в формат магазина
-        const importedProducts = [];
-        let importedCount = 0;
-        let skippedCount = 0;
-        
-        excelData.forEach((row, index) => {
-            // Проверяем обязательные поля
-            if (!row.name || !row.price) {
-                console.warn(`Строка ${index + 2}: пропущена - отсутствуют обязательные поля`);
-                skippedCount++;
+        function importExcelData() {
+            if (!excelData || excelData.length === 0) {
+                showAlert('Нет данных для импорта', 'warning');
                 return;
             }
             
-            // Создаем ID если нет
-            const id = row.id || `excel_${Date.now()}_${index}`;
-            
-            // Обрабатываем характеристики (строка или массив)
-            let features = [];
-            if (row.features) {
-                if (typeof row.features === 'string') {
-                    features = row.features.split(';').map(f => f.trim()).filter(f => f);
-                } else if (Array.isArray(row.features)) {
-                    features = row.features;
+            try {
+                // Преобразуем данные из Excel в формат магазина
+                const importedProducts = [];
+                let importedCount = 0;
+                let skippedCount = 0;
+                
+                excelData.forEach((row, index) => {
+                    // Проверяем обязательные поля
+                    if (!row.name || !row.price) {
+                        console.warn(`Строка ${index + 2}: пропущена - отсутствуют обязательные поля`);
+                        skippedCount++;
+                        return;
+                    }
+                    
+                    // Создаем ID если нет
+                    const id = row.id || `excel_${Date.now()}_${index}`;
+                    
+                    // Обрабатываем характеристики (строка или массив)
+                    let features = [];
+                    if (row.features) {
+                        if (typeof row.features === 'string') {
+                            features = row.features.split(';').map(f => f.trim()).filter(f => f);
+                        } else if (Array.isArray(row.features)) {
+                            features = row.features;
+                        }
+                    }
+                    
+                    // Нормализуем категорию
+                    let category = 'armor';
+                    if (row.category) {
+                        const categoryStr = row.category.toString().toLowerCase();
+                        const categoryMap = {
+                            'броня': 'armor',
+                            'оружие': 'weapons',
+                            'медицина': 'medicine',
+                            'встройки': 'attachments',
+                            'патроны': 'ammo',
+                            'метательное': 'throwable',
+                            'armor': 'armor',
+                            'weapons': 'weapons',
+                            'medicine': 'medicine',
+                            'attachments': 'attachments',
+                            'ammo': 'ammo',
+                            'throwable': 'throwable'
+                        };
+                        category = categoryMap[categoryStr] || 'armor';
+                    }
+                    
+                    // Создаем продукт
+                    const product = {
+                        id: id,
+                        name: row.name.toString(),
+                        description: row.description ? row.description.toString() : '',
+                        price: parseFloat(row.price) || 0,
+                        category: category,
+                        image: row.image ? row.image.toString() : 'https://via.placeholder.com/300x200?text=DiverS+Store',
+                        features: features
+                    };
+                    
+                    // Проверяем дубликаты по имени
+                    const isDuplicate = importedProducts.some(p => p.name === product.name) ||
+                                      products.some(p => p.name === product.name);
+                    
+                    if (!isDuplicate) {
+                        importedProducts.push(product);
+                        importedCount++;
+                    } else {
+                        skippedCount++;
+                    }
+                });
+                
+                // ИСПРАВЛЕНО: была опечатка importportedProducts, теперь importedProducts
+                // Добавляем импортированные товары к существующим
+                products = [...products, ...importedProducts];
+                
+                // Сохраняем товары
+                saveProducts();
+                
+                // Обновляем интерфейс
+                renderProducts();
+                
+                // Показываем статистику
+                showImportStats(importedCount, skippedCount);
+                
+                // Очищаем предпросмотр
+                clearExcelPreview();
+                
+                // Обновляем админ-панель
+                if (adminLoggedIn) {
+                    loadAdminProducts();
                 }
+                
+                showAlert(`Импортировано ${importedCount} товаров`, 'success');
+                
+            } catch (error) {
+                console.error('Import error:', error);
+                showAlert('Ошибка при импорте данных: ' + error.message, 'danger');
             }
-            
-            // Нормализуем категорию
-            let category = 'armor';
-            if (row.category) {
-                const categoryStr = row.category.toString().toLowerCase();
-                const categoryMap = {
-                    'броня': 'armor',
-                    'оружие': 'weapons',
-                    'медицина': 'medicine',
-                    'встройки': 'attachments',
-                    'патроны': 'ammo',
-                    'метательное': 'throwable',
-                    'armor': 'armor',
-                    'weapons': 'weapons',
-                    'medicine': 'medicine',
-                    'attachments': 'attachments',
-                    'ammo': 'ammo',
-                    'throwable': 'throwable'
-                };
-                category = categoryMap[categoryStr] || 'armor';
-            }
-            
-            // Создаем продукт
-            const product = {
-                id: id,
-                name: row.name.toString(),
-                description: row.description ? row.description.toString() : '',
-                price: parseFloat(row.price) || 0,
-                category: category,
-                image: row.image ? row.image.toString() : 'https://via.placeholder.com/300x200?text=DiverS+Store',
-                features: features
-            };
-            
-            // Проверяем дубликаты по имени
-            const isDuplicate = importedProducts.some(p => p.name === product.name) ||
-                              products.some(p => p.name === product.name);
-            
-            if (!isDuplicate) {
-                importedProducts.push(product);
-                importedCount++;
-            } else {
-                skippedCount++;
-            }
-        });
-        
-        // Добавляем импортированные товары к существующим
-        // ИСПРАВЛЕНА ОПЕЧАТКА: было importportedProducts, должно быть importedProducts
-        products = [...products, ...importedProducts];
-        
-        // Сохраняем товары
-        saveProducts();
-        
-        // Обновляем интерфейс
-        renderProducts();
-        
-        // Показываем статистику
-        showImportStats(importedCount, skippedCount);
-        
-        // Очищаем предпросмотр
-        clearExcelPreview();
-        
-        // Обновляем админ-панель
-        if (adminLoggedIn) {
-            loadAdminProducts();
         }
-        
-        showAlert(`Импортировано ${importedCount} товаров`, 'success');
-        
-    } catch (error) {
-        console.error('Import error:', error);
-        showAlert('Ошибка при импорте данных: ' + error.message, 'danger');
-    }
-}
         
         function showImportStats(imported, skipped) {
             const importStats = document.getElementById('import-stats');
