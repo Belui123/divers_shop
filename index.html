@@ -1003,53 +1003,53 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // === КОНФИГУРАЦИЯ ===
-        // Дефолтные товары
-        const DEFAULT_PRODUCTS = [
-            {
-                id: "1",
-                name: "Бронежилет 'Штурмовик'",
-                description: "Тяжелый бронежилет с защитой 5 класса",
-                price: 1250.50,
-                category: "armor",
-                image: "https://images.unsplash.com/photo-1588347818030-f6cf3ddf9c6f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-                features: ["Защита 5 класса", "10 слотов для встроек", "Устойчивость к пулям"]
-            },
-            {
-                id: "2",
-                name: "Шлем 'Снайпер'",
-                description: "Легкий шлем с маскировкой и защитой головы",
-                price: 850.75,
-                category: "armor",
-                image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-                features: ["Защита 3 класса", "Камуфляж", "Крепление для ПНВ"]
-            },
-            {
-                id: "3",
-                name: "АК-47 'Волк'",
-                description: "Модернизированный автомат Калашникова",
-                price: 2200.00,
-                category: "weapons",
-                image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-                features: ["Калибр 7.62мм", "Прицел ПСО-1", "30 патронов в магазине"]
-            },
-            {
-                id: "4",
-                name: "Аптечка первой помощи",
-                description: "Комплект для восстановления здоровья",
-                price: 450.25,
-                category: "medicine",
-                image: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-                features: ["+100 здоровья", "Быстрое применение", "Многоразовая"]
-            }
-        ];
-        
-        const DEFAULT_SETTINGS = {
-            telegram: {
-                botToken: "",
-                sellers: [],
-                notificationTemplate: `🛒 <b>НОВЫЙ ЗАКАЗ #{order_id}</b>
+<script>
+    // === КОНФИГУРАЦИЯ ===
+    // Дефолтные товары
+    const DEFAULT_PRODUCTS = [
+        {
+            id: "1",
+            name: "Бронежилет 'Штурмовик'",
+            description: "Тяжелый бронежилет с защитой 5 класса",
+            price: 1250.50,
+            category: "armor",
+            image: "https://images.unsplash.com/photo-1588347818030-f6cf3ddf9c6f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+            features: ["Защита 5 класса", "10 слотов для встроек", "Устойчивость к пулям"]
+        },
+        {
+            id: "2",
+            name: "Шлем 'Снайпер'",
+            description: "Легкий шлем с маскировкой и защитой головы",
+            price: 850.75,
+            category: "armor",
+            image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+            features: ["Защита 3 класса", "Камуфляж", "Крепление для ПНВ"]
+        },
+        {
+            id: "3",
+            name: "АК-47 'Волк'",
+            description: "Модернизированный автомат Калашникова",
+            price: 2200.00,
+            category: "weapons",
+            image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+            features: ["Калибр 7.62мм", "Прицел ПСО-1", "30 патронов в магазине"]
+        },
+        {
+            id: "4",
+            name: "Аптечка первой помощи",
+            description: "Комплект для восстановления здоровья",
+            price: 450.25,
+            category: "medicine",
+            image: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+            features: ["+100 здоровья", "Быстрое применение", "Многоразовая"]
+        }
+    ];
+    
+    const DEFAULT_SETTINGS = {
+        telegram: {
+            botToken: "",
+            sellers: [],
+            notificationTemplate: `🛒 <b>НОВЫЙ ЗАКАЗ #{order_id}</b>
 
 👤 <b>Покупатель:</b> {nickname}
 
@@ -1063,1270 +1063,1270 @@
 
 ━━━━━━━━━━━━━━━━━━━━
 <i>Используйте кнопки ниже для изменения статуса</i>`
-            },
-            admin: {
-                username: "admin",
-                password: "admin123"
+        },
+        admin: {
+            username: "admin",
+            password: "admin123"
+        }
+    };
+    
+    // === ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ===
+    let cart = [];
+    let orderHistory = [];
+    let adminLoggedIn = false;
+    let products = [];
+    let settings = { ...DEFAULT_SETTINGS };
+    let currentFilter = 'all';
+    let excelData = null; // Данные из Excel файла
+    
+    // === ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ ===
+    document.addEventListener('DOMContentLoaded', async function() {
+        console.log('Initializing DiverS Store...');
+        
+        // Загружаем корзину из localStorage
+        cart = JSON.parse(localStorage.getItem('divers_cart')) || [];
+        
+        // Загружаем настройки
+        loadSettings();
+        
+        // Загружаем товары
+        await loadProducts();
+        
+        // Загружаем заказы из localStorage
+        orderHistory = JSON.parse(localStorage.getItem('divers_orders')) || [];
+        
+        // Проверяем авторизацию админа
+        adminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+        
+        // Обновляем интерфейс
+        renderCart();
+        updateCartCount();
+        
+        // Настраиваем обработчики событий для Excel загрузки
+        setupExcelDragAndDrop();
+        
+        // Показываем приветствие
+        if (!localStorage.getItem('divers_welcome_shown')) {
+            setTimeout(() => {
+                showAlert('Добро пожаловать в магазин DiverS! Выберите товары и добавьте их в корзину.', 'info');
+                localStorage.setItem('divers_welcome_shown', 'true');
+            }, 1000);
+        }
+        
+        // Настраиваем обработчики событий
+        setupEventListeners();
+    });
+    
+    async function loadProducts() {
+        try {
+            showLoading(true);
+            
+            // Загружаем товары из localStorage
+            const savedProducts = localStorage.getItem('divers_products');
+            
+            if (savedProducts) {
+                products = JSON.parse(savedProducts);
+            } else {
+                // Если нет сохраненных товаров, используем дефолтные
+                products = [...DEFAULT_PRODUCTS];
+                saveProducts();
             }
-        };
-        
-        // === ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ===
-        let cart = [];
-        let orderHistory = [];
-        let adminLoggedIn = false;
-        let products = [];
-        let settings = { ...DEFAULT_SETTINGS };
-        let currentFilter = 'all';
-        let excelData = null; // Данные из Excel файла
-        
-        // === ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ ===
-        document.addEventListener('DOMContentLoaded', async function() {
-            console.log('Initializing DiverS Store...');
             
-            // Загружаем корзину из localStorage
-            cart = JSON.parse(localStorage.getItem('divers_cart')) || [];
-            
-            // Загружаем настройки
-            loadSettings();
-            
-            // Загружаем товары
-            await loadProducts();
-            
-            // Загружаем заказы из localStorage
-            orderHistory = JSON.parse(localStorage.getItem('divers_orders')) || [];
-            
-            // Проверяем авторизацию админа
-            adminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
-            
-            // Обновляем интерфейс
-            renderCart();
-            updateCartCount();
-            
-            // Настраиваем обработчики событий для Excel загрузки
-            setupExcelDragAndDrop();
-            
-            // Показываем приветствие
-            if (!localStorage.getItem('divers_welcome_shown')) {
-                setTimeout(() => {
-                    showAlert('Добро пожаловать в магазин DiverS! Выберите товары и добавьте их в корзину.', 'info');
-                    localStorage.setItem('divers_welcome_shown', 'true');
-                }, 1000);
-            }
-            
-            // Настраиваем обработчики событий
-            setupEventListeners();
-        });
-        
-        async function loadProducts() {
-            try {
-                showLoading(true);
-                
-                // Загружаем товары из localStorage
-                const savedProducts = localStorage.getItem('divers_products');
-                
-                if (savedProducts) {
-                    products = JSON.parse(savedProducts);
-                } else {
-                    // Если нет сохраненных товаров, используем дефолтные
-                    products = [...DEFAULT_PRODUCTS];
-                    saveProducts();
-                }
-                
-                // Если товары загрузились, отображаем их
-                if (products && products.length > 0) {
-                    renderProducts();
-                } else {
-                    // Если нет товаров, показываем сообщение
-                    document.getElementById('products-container').innerHTML = `
-                        <div class="col-12 text-center py-5">
-                            <i class="fas fa-box-open fa-3x mb-3" style="color: var(--secondary-color);"></i>
-                            <h4>Товары временно отсутствуют</h4>
-                            <p>Попробуйте обновить страницу позже</p>
-                            <button class="btn btn-game mt-3" onclick="loadProducts()">
-                                <i class="fas fa-sync me-2"></i>Обновить
-                            </button>
-                        </div>
-                    `;
-                }
-                
-            } catch (error) {
-                console.error('Failed to load products:', error);
-                
-                // Показываем сообщение об ошибке
+            // Если товары загрузились, отображаем их
+            if (products && products.length > 0) {
+                renderProducts();
+            } else {
+                // Если нет товаров, показываем сообщение
                 document.getElementById('products-container').innerHTML = `
                     <div class="col-12 text-center py-5">
-                        <i class="fas fa-wifi-slash fa-3x mb-3" style="color: #e74c3c;"></i>
-                        <h4>Ошибка загрузки товаров</h4>
-                        <p>Проверьте подключение к интернету</p>
+                        <i class="fas fa-box-open fa-3x mb-3" style="color: var(--secondary-color);"></i>
+                        <h4>Товары временно отсутствуют</h4>
+                        <p>Попробуйте обновить страницу позже</p>
                         <button class="btn btn-game mt-3" onclick="loadProducts()">
-                            <i class="fas fa-sync me-2"></i>Попробовать снова
+                            <i class="fas fa-sync me-2"></i>Обновить
                         </button>
                     </div>
                 `;
-            } finally {
-                showLoading(false);
             }
-        }
-        
-        function saveProducts() {
-            localStorage.setItem('divers_products', JSON.stringify(products));
-        }
-        
-        function loadSettings() {
-            const savedSettings = localStorage.getItem('divers_settings');
-            if (savedSettings) {
-                settings = JSON.parse(savedSettings);
-            }
-        }
-        
-        function saveSettings() {
-            localStorage.setItem('divers_settings', JSON.stringify(settings));
-        }
-        
-        function showLoading(show) {
-            const container = document.getElementById('products-container');
-            if (!container) return;
             
-            if (show) {
-                container.innerHTML = `
-                    <div class="col-12 text-center py-5">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Загрузка товаров...</span>
-                        </div>
-                        <p class="mt-2">Загрузка товаров...</p>
+        } catch (error) {
+            console.error('Failed to load products:', error);
+            
+            // Показываем сообщение об ошибке
+            document.getElementById('products-container').innerHTML = `
+                <div class="col-12 text-center py-5">
+                    <i class="fas fa-wifi-slash fa-3x mb-3" style="color: #e74c3c;"></i>
+                    <h4>Ошибка загрузки товаров</h4>
+                    <p>Проверьте подключение к интернету</p>
+                    <button class="btn btn-game mt-3" onclick="loadProducts()">
+                        <i class="fas fa-sync me-2"></i>Попробовать снова
+                    </button>
+                </div>
+            `;
+        } finally {
+            showLoading(false);
+        }
+    }
+    
+    function saveProducts() {
+        localStorage.setItem('divers_products', JSON.stringify(products));
+    }
+    
+    function loadSettings() {
+        const savedSettings = localStorage.getItem('divers_settings');
+        if (savedSettings) {
+            settings = JSON.parse(savedSettings);
+        }
+    }
+    
+    function saveSettings() {
+        localStorage.setItem('divers_settings', JSON.stringify(settings));
+    }
+    
+    function showLoading(show) {
+        const container = document.getElementById('products-container');
+        if (!container) return;
+        
+        if (show) {
+            container.innerHTML = `
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Загрузка товаров...</span>
                     </div>
-                `;
-            }
+                    <p class="mt-2">Загрузка товаров...</p>
+                </div>
+            `;
+        }
+    }
+    
+    // === EXCEL ИМПОРТ ФУНКЦИИ ===
+    function setupExcelDragAndDrop() {
+        const dropArea = document.getElementById('excel-drop-area');
+        const fileInput = document.getElementById('excel-file-input');
+        
+        if (!dropArea) return;
+        
+        // Предотвращаем поведение по умолчанию
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
         }
         
-        // === EXCEL ИМПОРТ ФУНКЦИИ ===
-        function setupExcelDragAndDrop() {
-            const dropArea = document.getElementById('excel-drop-area');
-            const fileInput = document.getElementById('excel-file-input');
-            
-            if (!dropArea) return;
-            
-            // Предотвращаем поведение по умолчанию
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, preventDefaults, false);
-            });
-            
-            function preventDefaults(e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            
-            // Подсветка области при наведении
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropArea.addEventListener(eventName, highlight, false);
-            });
-            
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, unhighlight, false);
-            });
-            
-            function highlight() {
-                dropArea.classList.add('dragover');
-            }
-            
-            function unhighlight() {
-                dropArea.classList.remove('dragover');
-            }
-            
-            // Обработка сброса файлов
-            dropArea.addEventListener('drop', handleDrop, false);
-            
-            function handleDrop(e) {
-                const dt = e.dataTransfer;
-                const files = dt.files;
-                
-                if (files.length > 0) {
-                    handleExcelFiles(files[0]);
-                }
-            }
+        // Подсветка области при наведении
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            dropArea.classList.add('dragover');
         }
         
-        function handleExcelFileSelect(event) {
-            const files = event.target.files;
+        function unhighlight() {
+            dropArea.classList.remove('dragover');
+        }
+        
+        // Обработка сброса файлов
+        dropArea.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            
             if (files.length > 0) {
                 handleExcelFiles(files[0]);
             }
         }
+    }
+    
+    function handleExcelFileSelect(event) {
+        const files = event.target.files;
+        if (files.length > 0) {
+            handleExcelFiles(files[0]);
+        }
+    }
+    
+    function handleExcelFiles(file) {
+        const validExtensions = ['.xlsx', '.xls', '.csv'];
+        const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
         
-        function handleExcelFiles(file) {
-            const validExtensions = ['.xlsx', '.xls', '.csv'];
-            const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
-            
-            if (!validExtensions.includes(fileExtension)) {
-                showAlert('Пожалуйста, выберите файл Excel (.xlsx, .xls) или CSV', 'danger');
-                return;
-            }
-            
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                try {
-                    const data = e.target.result;
-                    const workbook = XLSX.read(data, { type: 'binary' });
-                    
-                    // Получаем данные из первого листа
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    
-                    // Конвертируем в JSON
-                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-                    
-                    if (jsonData.length === 0) {
-                        showAlert('Файл пуст или содержит некорректные данные', 'warning');
-                        return;
-                    }
-                    
-                    // Извлекаем заголовки (первая строка)
-                    const headers = jsonData[0];
-                    
-                    // Преобразуем данные в массив объектов
-                    const dataRows = jsonData.slice(1);
-                    const processedData = dataRows.map(row => {
-                        const obj = {};
-                        headers.forEach((header, index) => {
-                            if (header && row[index] !== undefined) {
-                                // Преобразуем ключи в нижний регистр и убираем пробелы
-                                const key = header.toString().toLowerCase().replace(/\s+/g, '_');
-                                obj[key] = row[index];
-                            }
-                        });
-                        return obj;
-                    }).filter(obj => Object.keys(obj).length > 0); // Убираем пустые строки
-                    
-                    excelData = processedData;
-                    showExcelPreview(excelData);
-                    
-                } catch (error) {
-                    console.error('Error reading Excel file:', error);
-                    showAlert('Ошибка чтения файла. Проверьте формат файла.', 'danger');
-                }
-            };
-            
-            reader.onerror = function() {
-                showAlert('Ошибка при чтении файла', 'danger');
-            };
-            
-            reader.readAsBinaryString(file);
+        if (!validExtensions.includes(fileExtension)) {
+            showAlert('Пожалуйста, выберите файл Excel (.xlsx, .xls) или CSV', 'danger');
+            return;
         }
         
-        function showExcelPreview(data) {
-            const previewContainer = document.getElementById('excel-preview-container');
-            const previewTable = document.getElementById('excel-preview-table');
-            const importStats = document.getElementById('import-stats');
-            
-            if (!previewContainer || !previewTable) return;
-            
-            // Показываем контейнер предпросмотра
-            previewContainer.style.display = 'block';
-            
-            // Скрываем статистику предыдущего импорта
-            if (importStats) {
-                importStats.style.display = 'none';
-            }
-            
-            // Очищаем таблицу
-            previewTable.innerHTML = '';
-            
-            if (data.length === 0) {
-                previewTable.innerHTML = '<tr><td colspan="10" class="text-center">Нет данных для отображения</td></tr>';
-                return;
-            }
-            
-            // Получаем все уникальные ключи (заголовки столбцов)
-            const allKeys = new Set();
-            data.forEach(row => {
-                Object.keys(row).forEach(key => allKeys.add(key));
-            });
-            
-            const headers = Array.from(allKeys);
-            
-            // Создаем заголовок таблицы
-            let tableHTML = '<thead><tr>';
-            headers.forEach(header => {
-                tableHTML += `<th>${formatHeader(header)}</th>`;
-            });
-            tableHTML += '</tr></thead><tbody>';
-            
-            // Добавляем строки данных (первые 10 строк для предпросмотра)
-            const previewRows = data.slice(0, 10);
-            previewRows.forEach(row => {
-                tableHTML += '<tr>';
-                headers.forEach(header => {
-                    const value = row[header] !== undefined ? row[header] : '';
-                    tableHTML += `<td title="${header}">${truncateText(value.toString(), 30)}</td>`;
-                });
-                tableHTML += '</tr>';
-            });
-            
-            tableHTML += '</tbody>';
-            
-            if (data.length > 10) {
-                tableHTML += `<tfoot><tr><td colspan="${headers.length}" class="text-center">
-                    <small>и еще ${data.length - 10} строк...</small>
-                </td></tr></tfoot>`;
-            }
-            
-            previewTable.innerHTML = tableHTML;
-        }
+        const reader = new FileReader();
         
-        function formatHeader(header) {
-            // Форматируем заголовки для лучшего отображения
-            const headerMap = {
-                'id': 'ID',
-                'name': 'Название',
-                'description': 'Описание',
-                'price': 'Цена',
-                'category': 'Категория',
-                'image': 'Изображение',
-                'features': 'Характеристики',
-                'код': 'ID',
-                'название': 'Название',
-                'описание': 'Описание',
-                'цена': 'Цена',
-                'категория': 'Категория',
-                'картинка': 'Изображение',
-                'характеристики': 'Характеристики'
-            };
-            
-            return headerMap[header.toLowerCase()] || header;
-        }
-        
-        function truncateText(text, maxLength) {
-            if (text.length <= maxLength) return text;
-            return text.substring(0, maxLength) + '...';
-        }
-        
-        function importExcelData() {
-            if (!excelData || excelData.length === 0) {
-                showAlert('Нет данных для импорта', 'warning');
-                return;
-            }
-            
+        reader.onload = function(e) {
             try {
-                // Преобразуем данные из Excel в формат магазина
-                const importedProducts = [];
-                let importedCount = 0;
-                let skippedCount = 0;
+                const data = e.target.result;
+                const workbook = XLSX.read(data, { type: 'binary' });
                 
-                excelData.forEach((row, index) => {
-                    // Проверяем обязательные поля
-                    if (!row.name || !row.price) {
-                        console.warn(`Строка ${index + 2}: пропущена - отсутствуют обязательные поля`);
-                        skippedCount++;
-                        return;
-                    }
-                    
-                    // Создаем ID если нет
-                    const id = row.id || `excel_${Date.now()}_${index}`;
-                    
-                    // Обрабатываем характеристики (строка или массив)
-                    let features = [];
-                    if (row.features) {
-                        if (typeof row.features === 'string') {
-                            features = row.features.split(';').map(f => f.trim()).filter(f => f);
-                        } else if (Array.isArray(row.features)) {
-                            features = row.features;
-                        }
-                    }
-                    
-                    // Нормализуем категорию
-                    let category = 'armor';
-                    if (row.category) {
-                        const categoryStr = row.category.toString().toLowerCase();
-                        const categoryMap = {
-                            'броня': 'armor',
-                            'оружие': 'weapons',
-                            'медицина': 'medicine',
-                            'встройки': 'attachments',
-                            'патроны': 'ammo',
-                            'метательное': 'throwable',
-                            'armor': 'armor',
-                            'weapons': 'weapons',
-                            'medicine': 'medicine',
-                            'attachments': 'attachments',
-                            'ammo': 'ammo',
-                            'throwable': 'throwable'
-                        };
-                        category = categoryMap[categoryStr] || 'armor';
-                    }
-                    
-                    // Создаем продукт
-                    const product = {
-                        id: id,
-                        name: row.name.toString(),
-                        description: row.description ? row.description.toString() : '',
-                        price: parseFloat(row.price) || 0,
-                        category: category,
-                        image: row.image ? row.image.toString() : 'https://via.placeholder.com/300x200?text=DiverS+Store',
-                        features: features
-                    };
-                    
-                    // Проверяем дубликаты по имени
-                    const isDuplicate = importedProducts.some(p => p.name === product.name) ||
-                                      products.some(p => p.name === product.name);
-                    
-                    if (!isDuplicate) {
-                        importedProducts.push(product);
-                        importedCount++;
-                    } else {
-                        skippedCount++;
-                    }
-                });
+                // Получаем данные из первого листа
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
                 
-                // ИСПРАВЛЕНО: была опечатка importportedProducts, теперь importedProducts
-                // Добавляем импортированные товары к существующим
-                products = [...products, ...importedProducts];
+                // Конвертируем в JSON
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
                 
-                // Сохраняем товары
-                saveProducts();
-                
-                // Обновляем интерфейс
-                renderProducts();
-                
-                // Показываем статистику
-                showImportStats(importedCount, skippedCount);
-                
-                // Очищаем предпросмотр
-                clearExcelPreview();
-                
-                // Обновляем админ-панель
-                if (adminLoggedIn) {
-                    loadAdminProducts();
+                if (jsonData.length === 0) {
+                    showAlert('Файл пуст или содержит некорректные данные', 'warning');
+                    return;
                 }
                 
-                showAlert(`Импортировано ${importedCount} товаров`, 'success');
+                // Извлекаем заголовки (первая строка)
+                const headers = jsonData[0];
+                
+                // Преобразуем данные в массив объектов
+                const dataRows = jsonData.slice(1);
+                const processedData = dataRows.map(row => {
+                    const obj = {};
+                    headers.forEach((header, index) => {
+                        if (header && row[index] !== undefined) {
+                            // Преобразуем ключи в нижний регистр и убираем пробелы
+                            const key = header.toString().toLowerCase().replace(/\s+/g, '_');
+                            obj[key] = row[index];
+                        }
+                    });
+                    return obj;
+                }).filter(obj => Object.keys(obj).length > 0); // Убираем пустые строки
+                
+                excelData = processedData;
+                showExcelPreview(excelData);
                 
             } catch (error) {
-                console.error('Import error:', error);
-                showAlert('Ошибка при импорте данных: ' + error.message, 'danger');
+                console.error('Error reading Excel file:', error);
+                showAlert('Ошибка чтения файла. Проверьте формат файла.', 'danger');
             }
+        };
+        
+        reader.onerror = function() {
+            showAlert('Ошибка при чтении файла', 'danger');
+        };
+        
+        reader.readAsBinaryString(file);
+    }
+    
+    function showExcelPreview(data) {
+        const previewContainer = document.getElementById('excel-preview-container');
+        const previewTable = document.getElementById('excel-preview-table');
+        const importStats = document.getElementById('import-stats');
+        
+        if (!previewContainer || !previewTable) return;
+        
+        // Показываем контейнер предпросмотра
+        previewContainer.style.display = 'block';
+        
+        // Скрываем статистику предыдущего импорта
+        if (importStats) {
+            importStats.style.display = 'none';
         }
         
-        function showImportStats(imported, skipped) {
-            const importStats = document.getElementById('import-stats');
-            const importMessage = document.getElementById('import-message');
+        // Очищаем таблицу
+        previewTable.innerHTML = '';
+        
+        if (data.length === 0) {
+            previewTable.innerHTML = '<tr><td colspan="10" class="text-center">Нет данных для отображения</td></tr>';
+            return;
+        }
+        
+        // Получаем все уникальные ключи (заголовки столбцов)
+        const allKeys = new Set();
+        data.forEach(row => {
+            Object.keys(row).forEach(key => allKeys.add(key));
+        });
+        
+        const headers = Array.from(allKeys);
+        
+        // Создаем заголовок таблицы
+        let tableHTML = '<thead><tr>';
+        headers.forEach(header => {
+            tableHTML += `<th>${formatHeader(header)}</th>`;
+        });
+        tableHTML += '</tr></thead><tbody>';
+        
+        // Добавляем строки данных (первые 10 строк для предпросмотра)
+        const previewRows = data.slice(0, 10);
+        previewRows.forEach(row => {
+            tableHTML += '<tr>';
+            headers.forEach(header => {
+                const value = row[header] !== undefined ? row[header] : '';
+                tableHTML += `<td title="${header}">${truncateText(value.toString(), 30)}</td>`;
+            });
+            tableHTML += '</tr>';
+        });
+        
+        tableHTML += '</tbody>';
+        
+        if (data.length > 10) {
+            tableHTML += `<tfoot><tr><td colspan="${headers.length}" class="text-center">
+                <small>и еще ${data.length - 10} строк...</small>
+            </td></tr></tfoot>`;
+        }
+        
+        previewTable.innerHTML = tableHTML;
+    }
+    
+    function formatHeader(header) {
+        // Форматируем заголовки для лучшего отображения
+        const headerMap = {
+            'id': 'ID',
+            'name': 'Название',
+            'description': 'Описание',
+            'price': 'Цена',
+            'category': 'Категория',
+            'image': 'Изображение',
+            'features': 'Характеристики',
+            'код': 'ID',
+            'название': 'Название',
+            'описание': 'Описание',
+            'цена': 'Цена',
+            'категория': 'Категория',
+            'картинка': 'Изображение',
+            'характеристики': 'Характеристики'
+        };
+        
+        return headerMap[header.toLowerCase()] || header;
+    }
+    
+    function truncateText(text, maxLength) {
+        if (text.length <= maxLength) return text;
+        return text.substring(0, maxLength) + '...';
+    }
+    
+    function importExcelData() {
+        if (!excelData || excelData.length === 0) {
+            showAlert('Нет данных для импорта', 'warning');
+            return;
+        }
+        
+        try {
+            // Преобразуем данные из Excel в формат магазина
+            const importedProducts = [];
+            let importedCount = 0;
+            let skippedCount = 0;
             
-            if (!importStats || !importMessage) return;
+            excelData.forEach((row, index) => {
+                // Проверяем обязательные поля
+                if (!row.name || !row.price) {
+                    console.warn(`Строка ${index + 2}: пропущена - отсутствуют обязательные поля`);
+                    skippedCount++;
+                    return;
+                }
+                
+                // Создаем ID если нет
+                const id = row.id || `excel_${Date.now()}_${index}`;
+                
+                // Обрабатываем характеристики (строка или массив)
+                let features = [];
+                if (row.features) {
+                    if (typeof row.features === 'string') {
+                        features = row.features.split(';').map(f => f.trim()).filter(f => f);
+                    } else if (Array.isArray(row.features)) {
+                        features = row.features;
+                    }
+                }
+                
+                // Нормализуем категорию
+                let category = 'armor';
+                if (row.category) {
+                    const categoryStr = row.category.toString().toLowerCase();
+                    const categoryMap = {
+                        'броня': 'armor',
+                        'оружие': 'weapons',
+                        'медицина': 'medicine',
+                        'встройки': 'attachments',
+                        'патроны': 'ammo',
+                        'метательное': 'throwable',
+                        'armor': 'armor',
+                        'weapons': 'weapons',
+                        'medicine': 'medicine',
+                        'attachments': 'attachments',
+                        'ammo': 'ammo',
+                        'throwable': 'throwable'
+                    };
+                    category = categoryMap[categoryStr] || 'armor';
+                }
+                
+                // Создаем продукт
+                const product = {
+                    id: id,
+                    name: row.name.toString(),
+                    description: row.description ? row.description.toString() : '',
+                    price: parseFloat(row.price) || 0,
+                    category: category,
+                    image: row.image ? row.image.toString() : 'https://via.placeholder.com/300x200?text=DiverS+Store',
+                    features: features
+                };
+                
+                // Проверяем дубликаты по имени
+                const isDuplicate = importedProducts.some(p => p.name === product.name) ||
+                                  products.some(p => p.name === product.name);
+                
+                if (!isDuplicate) {
+                    importedProducts.push(product);
+                    importedCount++;
+                } else {
+                    skippedCount++;
+                }
+            });
             
-            let message = `Импорт завершен!<br>`;
-            message += `• Успешно импортировано: <strong>${imported}</strong> товаров<br>`;
+            // Добавляем импортированные товары к существующим
+            products = [...products, ...importedProducts];
             
-            if (skipped > 0) {
-                message += `• Пропущено: <strong>${skipped}</strong> товаров (дубликаты или ошибки)`;
+            // Сохраняем товары
+            saveProducts();
+            
+            // Обновляем интерфейс
+            renderProducts();
+            
+            // Показываем статистику
+            showImportStats(importedCount, skippedCount);
+            
+            // Очищаем предпросмотр
+            clearExcelPreview();
+            
+            // Обновляем админ-панель
+            if (adminLoggedIn) {
+                loadAdminProducts();
             }
             
-            importMessage.innerHTML = message;
-            importStats.style.display = 'block';
+            showAlert(`Импортировано ${importedCount} товаров`, 'success');
+            
+        } catch (error) {
+            console.error('Import error:', error);
+            showAlert('Ошибка при импорте данных: ' + error.message, 'danger');
+        }
+    }
+    
+    function showImportStats(imported, skipped) {
+        const importStats = document.getElementById('import-stats');
+        const importMessage = document.getElementById('import-message');
+        
+        if (!importStats || !importMessage) return;
+        
+        let message = `Импорт завершен!<br>`;
+        message += `• Успешно импортировано: <strong>${imported}</strong> товаров<br>`;
+        
+        if (skipped > 0) {
+            message += `• Пропущено: <strong>${skipped}</strong> товаров (дубликаты или ошибки)`;
         }
         
-        function clearExcelPreview() {
-            const previewContainer = document.getElementById('excel-preview-container');
-            const previewTable = document.getElementById('excel-preview-table');
-            const fileInput = document.getElementById('excel-file-input');
-            
-            if (previewContainer) previewContainer.style.display = 'none';
-            if (previewTable) previewTable.innerHTML = '';
-            if (fileInput) fileInput.value = '';
-            
-            excelData = null;
+        importMessage.innerHTML = message;
+        importStats.style.display = 'block';
+    }
+    
+    function clearExcelPreview() {
+        const previewContainer = document.getElementById('excel-preview-container');
+        const previewTable = document.getElementById('excel-preview-table');
+        const fileInput = document.getElementById('excel-file-input');
+        
+        if (previewContainer) previewContainer.style.display = 'none';
+        if (previewTable) previewTable.innerHTML = '';
+        if (fileInput) fileInput.value = '';
+        
+        excelData = null;
+    }
+    
+    function downloadExcelTemplate() {
+        // Создаем данные для шаблона
+        const templateData = [
+            ['id', 'name', 'description', 'price', 'category', 'image', 'features'],
+            ['1', 'Бронежилет "Штурмовик"', 'Тяжелый бронежилет с защитой 5 класса', '1250.50', 'armor', 'https://example.com/image1.jpg', 'Защита 5 класса;10 слотов;Устойчивость к пулям'],
+            ['2', 'АК-47 "Волк"', 'Модернизированный автомат Калашникова', '2200.00', 'weapons', 'https://example.com/image2.jpg', 'Калибр 7.62мм;Прицел ПСО-1;30 патронов'],
+            ['3', 'Аптечка первой помощи', 'Комплект для восстановления здоровья', '450.25', 'medicine', 'https://example.com/image3.jpg', '+100 здоровья;Быстрое применение;Многоразовая']
+        ];
+        
+        // Создаем рабочую книгу
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(templateData);
+        
+        // Добавляем стили для заголовков (ширина колонок)
+        const wscols = [
+            {wch: 5},  // id
+            {wch: 25}, // name
+            {wch: 40}, // description
+            {wch: 10}, // price
+            {wch: 15}, // category
+            {wch: 30}, // image
+            {wch: 40}  // features
+        ];
+        ws['!cols'] = wscols;
+        
+        XLSX.utils.book_append_sheet(wb, ws, "Товары");
+        
+        // Генерируем и скачиваем файл
+        XLSX.writeFile(wb, "divers_store_template.xlsx");
+        
+        showAlert('Шаблон Excel скачан! Заполните его своими товарами.', 'info');
+    }
+    
+    // === ОТОБРАЖЕНИЕ ТОВАРОВ ===
+    function renderProducts() {
+        const container = document.getElementById('products-container');
+        if (!container) return;
+        
+        const filteredProducts = currentFilter === 'all' 
+            ? products 
+            : products.filter(p => p.category === currentFilter);
+        
+        if (filteredProducts.length === 0) {
+            container.innerHTML = `
+                <div class="col-12 text-center py-5">
+                    <i class="fas fa-search fa-3x mb-3" style="color: var(--secondary-color);"></i>
+                    <h4>Товары в этой категории отсутствуют</h4>
+                    <p>Попробуйте выбрать другую категорию</p>
+                </div>
+            `;
+            return;
         }
         
-        function downloadExcelTemplate() {
-            // Создаем данные для шаблона
-            const templateData = [
-                ['id', 'name', 'description', 'price', 'category', 'image', 'features'],
-                ['1', 'Бронежилет "Штурмовик"', 'Тяжелый бронежилет с защитой 5 класса', '1250.50', 'armor', 'https://example.com/image1.jpg', 'Защита 5 класса;10 слотов;Устойчивость к пулям'],
-                ['2', 'АК-47 "Волк"', 'Модернизированный автомат Калашникова', '2200.00', 'weapons', 'https://example.com/image2.jpg', 'Калибр 7.62мм;Прицел ПСО-1;30 патронов'],
-                ['3', 'Аптечка первой помощи', 'Комплект для восстановления здоровья', '450.25', 'medicine', 'https://example.com/image3.jpg', '+100 здоровья;Быстрое применение;Многоразовая']
-            ];
-            
-            // Создаем рабочую книгу
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.aoa_to_sheet(templateData);
-            
-            // Добавляем стили для заголовков (ширина колонок)
-            const wscols = [
-                {wch: 5},  // id
-                {wch: 25}, // name
-                {wch: 40}, // description
-                {wch: 10}, // price
-                {wch: 15}, // category
-                {wch: 30}, // image
-                {wch: 40}  // features
-            ];
-            ws['!cols'] = wscols;
-            
-            XLSX.utils.book_append_sheet(wb, ws, "Товары");
-            
-            // Генерируем и скачиваем файл
-            XLSX.writeFile(wb, "divers_store_template.xlsx");
-            
-            showAlert('Шаблон Excel скачан! Заполните его своими товарами.', 'info');
-        }
+        let html = '';
         
-        // === ОТОБРАЖЕНИЕ ТОВАРОВ ===
-        function renderProducts() {
-            const container = document.getElementById('products-container');
-            if (!container) return;
-            
-            const filteredProducts = currentFilter === 'all' 
-                ? products 
-                : products.filter(p => p.category === currentFilter);
-            
-            if (filteredProducts.length === 0) {
-                container.innerHTML = `
-                    <div class="col-12 text-center py-5">
-                        <i class="fas fa-search fa-3x mb-3" style="color: var(--secondary-color);"></i>
-                        <h4>Товары в этой категории отсутствуют</h4>
-                        <p>Попробуйте выбрать другую категорию</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            let html = '';
-            
-            filteredProducts.forEach(product => {
-                html += `
-                    <div class="col-md-4 col-lg-3 mb-4">
-                        <div class="product-card h-100">
-                            <div style="position: relative;">
-                                <img src="${product.image || 'https://via.placeholder.com/300x200?text=DiverS+Store'}" 
-                                     class="product-img" alt="${product.name}"
-                                     onerror="this.src='https://via.placeholder.com/300x200?text=DiverS+Store'">
-                                <span class="category-badge" style="background: ${getCategoryColor(product.category)}">
-                                    ${getCategoryName(product.category)}
-                                </span>
-                            </div>
-                            <div class="p-3">
-                                <h5 class="mb-2">${product.name}</h5>
-                                <p class="text-muted small mb-3" style="min-height: 60px;">${product.description}</p>
-                                
-                                ${product.features && product.features.length > 0 ? `
-                                    <div class="mb-3">
-                                        ${product.features.map(f => 
-                                            `<span class="badge bg-secondary me-1 mb-1">${f}</span>`
-                                        ).join('')}
-                                    </div>
-                                ` : ''}
-                                
-                                <div class="d-flex justify-content-between align-items-center mt-auto">
-                                    <span class="price-tag">${formatPrice(product.price)} <i class="fas fa-coins currency-coin"></i></span>
-                                    <button class="btn btn-game btn-sm" onclick="addToCart('${product.id}')">
-                                        <i class="fas fa-cart-plus me-1"></i>В корзину
-                                    </button>
+        filteredProducts.forEach(product => {
+            html += `
+                <div class="col-md-4 col-lg-3 mb-4">
+                    <div class="product-card h-100">
+                        <div style="position: relative;">
+                            <img src="${product.image || 'https://via.placeholder.com/300x200?text=DiverS+Store'}" 
+                                 class="product-img" alt="${product.name}"
+                                 onerror="this.src='https://via.placeholder.com/300x200?text=DiverS+Store'">
+                            <span class="category-badge" style="background: ${getCategoryColor(product.category)}">
+                                ${getCategoryName(product.category)}
+                            </span>
+                        </div>
+                        <div class="p-3">
+                            <h5 class="mb-2">${product.name}</h5>
+                            <p class="text-muted small mb-3" style="min-height: 60px;">${product.description}</p>
+                            
+                            ${product.features && product.features.length > 0 ? `
+                                <div class="mb-3">
+                                    ${product.features.map(f => 
+                                        `<span class="badge bg-secondary me-1 mb-1">${f}</span>`
+                                    ).join('')}
                                 </div>
+                            ` : ''}
+                            
+                            <div class="d-flex justify-content-between align-items-center mt-auto">
+                                <span class="price-tag">${formatPrice(product.price)} <i class="fas fa-coins currency-coin"></i></span>
+                                <button class="btn btn-game btn-sm" onclick="addToCart('${product.id}')">
+                                    <i class="fas fa-cart-plus me-1"></i>В корзину
+                                </button>
                             </div>
                         </div>
                     </div>
-                `;
-            });
-            
-            container.innerHTML = html;
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+    }
+    
+    function filterProducts(category) {
+        currentFilter = category;
+        
+        // Обновляем активные кнопки
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+        
+        renderProducts();
+    }
+    
+    // === ФУНКЦИИ КОРЗИНЫ ===
+    function addToCart(productId, quantity = 1) {
+        // Используем нестрогое сравнение == для поиска товара
+        const product = products.find(p => p.id == productId);
+        
+        if (!product) {
+            showAlert('Товар не найден! ID: ' + productId, 'danger');
+            return;
         }
         
-        function filterProducts(category) {
-            currentFilter = category;
-            
-            // Обновляем активные кнопки
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.remove('active');
+        const existingItem = cart.find(item => item.id == productId);
+        
+        if (existingItem) {
+            existingItem.quantity += quantity;
+        } else {
+            cart.push({
+                id: product.id.toString(), // Сохраняем как строку
+                name: product.name,
+                price: parseFloat(product.price),
+                quantity: quantity,
+                category: product.category,
+                image: product.image
             });
-            event.target.classList.add('active');
-            
-            renderProducts();
         }
         
-        // === ФУНКЦИИ КОРЗИНЫ ===
-        function addToCart(productId, quantity = 1) {
-            const product = products.find(p => p.id === productId);
-            
-            if (!product) {
-                showAlert('Товар не найден!', 'danger');
-                return;
-            }
-            
-            const existingItem = cart.find(item => item.id === productId);
-            
-            if (existingItem) {
-                existingItem.quantity += quantity;
-            } else {
-                cart.push({
-                    id: product.id,
-                    name: product.name,
-                    price: parseFloat(product.price),
-                    quantity: quantity,
-                    category: product.category,
-                    image: product.image
-                });
-            }
-            
+        saveCart();
+        renderCart();
+        updateCartCount();
+        
+        showAlert(`"${product.name}" добавлен в корзину!`, 'success');
+    }
+    
+    function removeFromCart(productId) {
+        const itemIndex = cart.findIndex(item => item.id == productId);
+        
+        if (itemIndex > -1) {
+            const removedItem = cart[itemIndex];
+            cart.splice(itemIndex, 1);
             saveCart();
             renderCart();
             updateCartCount();
-            
-            showAlert(`"${product.name}" добавлен в корзину!`, 'success');
+            showAlert(`"${removedItem.name}" удален из корзины`, 'info');
+        }
+    }
+    
+    function updateQuantity(productId, newQuantity) {
+        if (newQuantity < 1) {
+            removeFromCart(productId);
+            return;
         }
         
-        function removeFromCart(productId) {
-            const itemIndex = cart.findIndex(item => item.id === productId);
-            
-            if (itemIndex > -1) {
-                const removedItem = cart[itemIndex];
-                cart.splice(itemIndex, 1);
-                saveCart();
-                renderCart();
-                updateCartCount();
-                showAlert(`"${removedItem.name}" удален из корзины`, 'info');
-            }
+        const item = cart.find(item => item.id == productId);
+        if (item) {
+            item.quantity = newQuantity;
+            saveCart();
+            renderCart();
+        }
+    }
+    
+    function clearCart() {
+        if (cart.length === 0) {
+            showAlert('Корзина уже пуста!', 'info');
+            return;
         }
         
-        function updateQuantity(productId, newQuantity) {
-            if (newQuantity < 1) {
-                removeFromCart(productId);
-                return;
-            }
-            
-            const item = cart.find(item => item.id === productId);
-            if (item) {
-                item.quantity = newQuantity;
-                saveCart();
-                renderCart();
-            }
-        }
-        
-        function clearCart() {
-            if (cart.length === 0) {
-                showAlert('Корзина уже пуста!', 'info');
-                return;
-            }
-            
-            if (confirm('Вы уверены, что хотите очистить корзину?')) {
-                cart = [];
-                saveCart();
-                renderCart();
-                updateCartCount();
-                showAlert('Корзина очищена!', 'success');
-            }
-        }
-        
-        function saveCart() {
-            localStorage.setItem('divers_cart', JSON.stringify(cart));
-        }
-        
-        function renderCart() {
-            const container = document.getElementById('cart-items');
-            const cartCount = document.getElementById('cart-count');
-            const totalItems = document.getElementById('total-items');
-            const totalPrice = document.getElementById('total-price');
-            
-            if (!container) return;
-            
-            if (cart.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-cart">
-                        <i class="fas fa-shopping-cart empty-cart-icon"></i>
-                        <h4>Ваша корзина пуста</h4>
-                        <p>Добавьте товары из каталога</p>
-                        <a href="#products" class="btn btn-game" onclick="filterProducts('all')">Перейти к товарам</a>
-                    </div>
-                `;
-                
-                if (cartCount) cartCount.textContent = '0';
-                if (totalItems) totalItems.textContent = '0';
-                if (totalPrice) totalPrice.textContent = '0.00';
-                return;
-            }
-            
-            let itemsCount = 0;
-            let priceTotal = 0;
-            let cartHTML = '';
-            
-            cart.forEach((item, index) => {
-                itemsCount += item.quantity;
-                priceTotal += parseFloat(item.price) * item.quantity;
-                
-                cartHTML += `
-                    <div class="cart-item">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div style="flex-grow: 1;">
-                                <h6 class="mb-1">${item.name}</h6>
-                                <div class="d-flex align-items-center">
-                                    <span class="badge bg-secondary me-2">${getCategoryName(item.category)}</span>
-                                    <span class="text-muted">${formatPrice(item.price)} × ${item.quantity}</span>
-                                </div>
-                            </div>
-                            <div class="text-end">
-                                <div class="mb-2">${formatPrice(parseFloat(item.price) * item.quantity)} <i class="fas fa-coins currency-coin"></i></div>
-                                <div>
-                                    <button class="btn btn-sm btn-outline-secondary me-1" onclick="updateQuantity('${item.id}', ${item.quantity - 1})" ${item.quantity <= 1 ? 'disabled' : ''}>
-                                        <i class="fas fa-minus"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity('${item.id}', ${item.quantity + 1})">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger ms-2" onclick="removeFromCart('${item.id}')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            container.innerHTML = cartHTML;
-            
-            if (cartCount) cartCount.textContent = itemsCount;
-            if (totalItems) totalItems.textContent = itemsCount;
-            if (totalPrice) totalPrice.textContent = formatPrice(priceTotal);
-        }
-        
-        function updateCartCount() {
-            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-            const cartCountElement = document.getElementById('cart-count');
-            if (cartCountElement) {
-                cartCountElement.textContent = count;
-            }
-        }
-        
-        // === ОФОРМЛЕНИЕ ЗАКАЗА ===
-        function showCheckoutModal() {
-            if (cart.length === 0) {
-                showAlert('Корзина пуста!', 'warning');
-                return;
-            }
-            
-            // Обновляем сумму в модальном окне
-            const total = cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
-            document.getElementById('modal-total-price').textContent = formatPrice(total);
-            
-            // Заполняем список товаров
-            const cartSummary = document.getElementById('cart-summary');
-            cartSummary.innerHTML = '';
-            
-            cart.forEach(item => {
-                const itemElement = document.createElement('div');
-                itemElement.className = 'd-flex justify-content-between align-items-center mb-2';
-                itemElement.innerHTML = `
-                    <div>
-                        <small>${item.name}</small><br>
-                        <small class="text-muted">${item.quantity} × ${formatPrice(item.price)} монет</small>
-                    </div>
-                    <div>
-                        <small>${formatPrice(parseFloat(item.price) * item.quantity)} монет</small>
-                    </div>
-                `;
-                cartSummary.appendChild(itemElement);
-            });
-            
-            // Показываем модальное окно
-            const modal = new bootstrap.Modal(document.getElementById('checkoutModal'));
-            modal.show();
-        }
-        
-        async function processOrder() {
-            const nicknameInput = document.getElementById('game-nickname');
-            const nickname = nicknameInput.value.trim();
-            
-            if (!nickname) {
-                showAlert('Введите ваш игровой никнейм!', 'danger');
-                nicknameInput.focus();
-                return;
-            }
-            
-            if (nickname.length < 3) {
-                showAlert('Никнейм должен содержать минимум 3 символа!', 'danger');
-                nicknameInput.focus();
-                return;
-            }
-            
-            // Создаем заказ
-            const orderId = 'ORD' + Date.now().toString().substr(-8);
-            const orderTime = new Date().toLocaleString('ru-RU');
-            const totalPrice = cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
-            
-            const order = {
-                id: orderId,
-                nickname: nickname,
-                items: cart.map(item => ({
-                    name: item.name,
-                    quantity: item.quantity,
-                    price: parseFloat(item.price),
-                    total: parseFloat((parseFloat(item.price) * item.quantity).toFixed(2))
-                })),
-                totalPrice: parseFloat(totalPrice.toFixed(2)),
-                time: orderTime,
-                status: 'pending',
-                createdAt: new Date().toISOString()
-            };
-            
-            // Сохраняем заказ локально
-            orderHistory.push(order);
-            localStorage.setItem('divers_orders', JSON.stringify(orderHistory));
-            
-            // Очищаем корзину
+        if (confirm('Вы уверены, что хотите очистить корзину?')) {
             cart = [];
             saveCart();
             renderCart();
             updateCartCount();
+            showAlert('Корзина очищена!', 'success');
+        }
+    }
+    
+    function saveCart() {
+        localStorage.setItem('divers_cart', JSON.stringify(cart));
+    }
+    
+    function renderCart() {
+        const container = document.getElementById('cart-items');
+        const cartCount = document.getElementById('cart-count');
+        const totalItems = document.getElementById('total-items');
+        const totalPrice = document.getElementById('total-price');
+        
+        if (!container) return;
+        
+        if (cart.length === 0) {
+            container.innerHTML = `
+                <div class="empty-cart">
+                    <i class="fas fa-shopping-cart empty-cart-icon"></i>
+                    <h4>Ваша корзина пуста</h4>
+                    <p>Добавьте товары из каталога</p>
+                    <a href="#products" class="btn btn-game" onclick="filterProducts('all')">Перейти к товарам</a>
+                </div>
+            `;
             
-            // Закрываем модальное окно
-            const modal = bootstrap.Modal.getInstance(document.getElementById('checkoutModal'));
-            modal.hide();
-            
-            // Показываем уведомление
-            showOrderNotification(
-                true, 
-                'Заказ оформлен! Продавец свяжется с вами в игре.'
-            );
-            
-            showAlert(`Заказ #${orderId} успешно оформлен!`, 'success');
-            
-            // Обновляем админ-панель если открыта
-            if (adminLoggedIn) {
-                loadAdminOrders();
-            }
+            if (cartCount) cartCount.textContent = '0';
+            if (totalItems) totalItems.textContent = '0';
+            if (totalPrice) totalPrice.textContent = '0.00';
+            return;
         }
         
-        // === АДМИН ПАНЕЛЬ ===
-        function openAdminPanel() {
-            document.getElementById('admin-panel').classList.add('active');
-            document.getElementById('admin-overlay').classList.add('active');
-            
-            if (adminLoggedIn) {
-                showAdminTab('products');
-            }
-        }
+        let itemsCount = 0;
+        let priceTotal = 0;
+        let cartHTML = '';
         
-        function closeAdminPanel() {
-            document.getElementById('admin-panel').classList.remove('active');
-            document.getElementById('admin-overlay').classList.remove('active');
-        }
-        
-        function adminLogin() {
-            const username = document.getElementById('admin-username').value;
-            const password = document.getElementById('admin-password').value;
+        cart.forEach((item, index) => {
+            itemsCount += item.quantity;
+            priceTotal += parseFloat(item.price) * item.quantity;
             
-            if (username === settings.admin.username && password === settings.admin.password) {
-                adminLoggedIn = true;
-                localStorage.setItem('admin_logged_in', 'true');
-                
-                document.getElementById('admin-auth-section').style.display = 'none';
-                document.getElementById('admin-controls').style.display = 'block';
-                
-                showAdminTab('products');
-                loadAdminData();
-                
-                showAlert('Успешный вход в панель администратора!', 'success');
-            } else {
-                showAlert('Неверный логин или пароль!', 'danger');
-            }
-        }
-        
-        function adminLogout() {
-            adminLoggedIn = false;
-            localStorage.removeItem('admin_logged_in');
-            
-            document.getElementById('admin-auth-section').style.display = 'block';
-            document.getElementById('admin-controls').style.display = 'none';
-            
-            // Очищаем поля
-            document.getElementById('admin-username').value = '';
-            document.getElementById('admin-password').value = '';
-            
-            showAlert('Вы вышли из админ-панели', 'info');
-        }
-        
-        function showAdminTab(tabName) {
-            // Скрываем все вкладки
-            document.querySelectorAll('.admin-tab-content').forEach(tab => {
-                tab.style.display = 'none';
-            });
-            
-            // Убираем активный класс со всех кнопок
-            document.querySelectorAll('#adminTabs .nav-link').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            // Показываем нужную вкладку
-            document.getElementById(`admin-${tabName}-tab`).style.display = 'block';
-            
-            // Добавляем активный класс к кнопке
-            event.target.classList.add('active');
-            
-            // Загружаем данные для вкладки
-            if (tabName === 'products') {
-                loadAdminProducts();
-            } else if (tabName === 'orders') {
-                loadAdminOrders();
-            } else if (tabName === 'telegram') {
-                loadTelegramStatus();
-            }
-        }
-        
-        function loadAdminData() {
-            loadAdminProducts();
-            loadAdminOrders();
-            loadTelegramStatus();
-        }
-        
-        function loadAdminProducts() {
-            const container = document.getElementById('quick-products-list');
-            if (!container) return;
-            
-            if (products.length === 0) {
-                container.innerHTML = '<div class="text-center text-muted p-2">Нет товаров</div>';
-                return;
-            }
-            
-            let html = '';
-            
-            products.slice(0, 10).forEach(product => {
-                html += `
-                    <div class="list-group-item" style="background: rgba(255,255,255,0.1); color: white; border-color: rgba(0,168,255,0.2);">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <small>${product.name}</small><br>
-                                <small class="text-muted">${formatPrice(product.price)} <i class="fas fa-coins"></i></small>
+            cartHTML += `
+                <div class="cart-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div style="flex-grow: 1;">
+                            <h6 class="mb-1">${item.name}</h6>
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-secondary me-2">${getCategoryName(item.category)}</span>
+                                <span class="text-muted">${formatPrice(item.price)} × ${item.quantity}</span>
                             </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="mb-2">${formatPrice(parseFloat(item.price) * item.quantity)} <i class="fas fa-coins currency-coin"></i></div>
                             <div>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct('${product.id}')">
+                                <button class="btn btn-sm btn-outline-secondary me-1" onclick="updateQuantity('${item.id}', ${item.quantity - 1})" ${item.quantity <= 1 ? 'disabled' : ''}>
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity('${item.id}', ${item.quantity + 1})">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger ms-2" onclick="removeFromCart('${item.id}')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
-                `;
-            });
-            
-            container.innerHTML = html;
-            
-            // Обновляем статистику
-            const categories = new Set(products.map(p => p.category));
-            document.getElementById('admin-total-products').textContent = products.length;
-            document.getElementById('admin-total-categories').textContent = categories.size;
-        }
-        
-        function loadAdminOrders() {
-            const container = document.getElementById('orders-list-container');
-            if (!container) return;
-            
-            const pendingOrders = orderHistory.filter(o => o.status === 'pending');
-            
-            if (pendingOrders.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center text-muted py-4">
-                        <i class="fas fa-check-circle fa-3x mb-3 opacity-50"></i>
-                        <p>Нет ожидающих заказов</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            let html = '';
-            
-            pendingOrders.forEach(order => {
-                const orderItems = order.items.map(item => 
-                    `<div class="d-flex justify-content-between">
-                        <span>${item.name} × ${item.quantity}</span>
-                        <span>${formatPrice(item.total)} монет</span>
-                    </div>`
-                ).join('');
-                
-                html += `
-                    <div class="order-card">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <div>
-                                <h6 class="mb-1">Заказ #${order.id}</h6>
-                                <small class="text-muted">${order.time}</small>
-                            </div>
-                            <span class="status-badge status-pending">⏳ Ожидает</span>
-                        </div>
-                        
-                        <div class="mb-2">
-                            <strong><i class="fas fa-user me-1"></i>${order.nickname}</strong>
-                        </div>
-                        
-                        <div class="mb-2">
-                            <small class="text-muted">Товары:</small>
-                            <div class="mt-1">
-                                ${orderItems}
-                            </div>
-                        </div>
-                        
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                            <div>
-                                <strong>Итого: ${formatPrice(order.totalPrice)} <i class="fas fa-coins currency-coin"></i></strong>
-                            </div>
-                            <div class="order-actions">
-                                <button class="btn btn-sm btn-success" onclick="completeOrder('${order.id}')">
-                                    <i class="fas fa-check"></i> Выдан
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            container.innerHTML = html;
-            
-            // Обновляем счетчик заказов
-            const badge = document.getElementById('orders-count-badge');
-            badge.textContent = pendingOrders.length;
-            badge.style.display = pendingOrders.length > 0 ? 'inline' : 'none';
-        }
-        
-        function loadTelegramStatus() {
-            const statusElement = document.getElementById('telegram-status');
-            const statusText = document.getElementById('telegram-status-text');
-            const statusDesc = document.getElementById('telegram-status-desc');
-            
-            if (settings.telegram.botToken) {
-                statusElement.className = 'telegram-status connected';
-                statusText.textContent = 'Настроен';
-                statusDesc.textContent = 'Бот готов к отправке уведомлений';
-            } else {
-                statusElement.className = 'telegram-status disconnected';
-                statusText.textContent = 'Не настроен';
-                statusDesc.textContent = 'Настройте бота для получения уведомлений';
-            }
-        }
-        
-        function showAddProductModal() {
-            // Очищаем поля
-            document.getElementById('new-product-name').value = '';
-            document.getElementById('new-product-description').value = '';
-            document.getElementById('new-product-price').value = '';
-            document.getElementById('new-product-image').value = '';
-            document.getElementById('new-product-category').value = 'armor';
-            
-            // Показываем модальное окно
-            const modal = new bootstrap.Modal(document.getElementById('addProductModal'));
-            modal.show();
-        }
-        
-        async function saveNewProduct() {
-            const name = document.getElementById('new-product-name').value.trim();
-            const description = document.getElementById('new-product-description').value.trim();
-            const price = parseFloat(document.getElementById('new-product-price').value);
-            const image = document.getElementById('new-product-image').value.trim();
-            const category = document.getElementById('new-product-category').value;
-            
-            if (!name || !description || isNaN(price) || price <= 0 || !image) {
-                showAlert('Заполните все поля корректно!', 'danger');
-                return;
-            }
-            
-            // Создаем новый товар
-            const newProduct = {
-                id: 'prod_' + Date.now(),
-                name: name,
-                description: description,
-                price: price,
-                category: category,
-                image: image,
-                features: []
-            };
-            
-            // Добавляем товар
-            products.push(newProduct);
-            saveProducts();
-            
-            // Обновляем интерфейс
-            renderProducts();
-            
-            // Обновляем админ-панель
-            loadAdminProducts();
-            
-            // Закрываем модальное окно
-            const modal = bootstrap.Modal.getInstance(document.getElementById('addProductModal'));
-            modal.hide();
-            
-            showAlert('Товар успешно добавлен!', 'success');
-        }
-        
-        async function deleteProduct(productId) {
-            if (!confirm('Удалить этот товар?')) return;
-            
-            // Удаляем товар
-            products = products.filter(p => p.id !== productId);
-            saveProducts();
-            
-            // Обновляем интерфейс
-            renderProducts();
-            loadAdminProducts();
-            
-            showAlert('Товар удален!', 'warning');
-        }
-        
-        function completeOrder(orderId) {
-            const orderIndex = orderHistory.findIndex(o => o.id === orderId);
-            
-            if (orderIndex !== -1) {
-                orderHistory[orderIndex].status = 'completed';
-                localStorage.setItem('divers_orders', JSON.stringify(orderHistory));
-                loadAdminOrders();
-                showAlert(`Заказ #${orderId} отмечен как выданный`, 'success');
-            }
-        }
-        
-        function showTelegramSettings() {
-            // Заполняем поля текущими настройками
-            document.getElementById('telegram-bot-token').value = settings.telegram.botToken || '';
-            document.getElementById('telegram-chat-id').value = 
-                settings.telegram.sellers && settings.telegram.sellers.length > 0 
-                ? settings.telegram.sellers[0].chatId 
-                : '';
-            
-            // Показываем модальное окно
-            const modal = new bootstrap.Modal(document.getElementById('telegramSettingsModal'));
-            modal.show();
-        }
-        
-        async function saveTelegramSettings() {
-            const botToken = document.getElementById('telegram-bot-token').value.trim();
-            const chatId = document.getElementById('telegram-chat-id').value.trim();
-            
-            // Обновляем настройки
-            settings.telegram.botToken = botToken;
-            settings.telegram.sellers = chatId ? [{ 
-                name: 'Основной продавец', 
-                chatId: chatId, 
-                role: 'admin',
-                notificationsEnabled: true 
-            }] : [];
-            
-            // Сохраняем локально
-            saveSettings();
-            
-            // Закрываем модальное окно
-            const modal = bootstrap.Modal.getInstance(document.getElementById('telegramSettingsModal'));
-            modal.hide();
-            
-            // Обновляем статус
-            loadTelegramStatus();
-            
-            showAlert('Настройки Telegram сохранены!', 'success');
-        }
-        
-        // === ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ===
-        function setupEventListeners() {
-            // Оверлей админ-панели
-            const adminOverlay = document.getElementById('admin-overlay');
-            if (adminOverlay) {
-                adminOverlay.addEventListener('click', closeAdminPanel);
-            }
-            
-            // Плавная прокрутка
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('href');
-                    if (targetId === '#') return;
-                    
-                    const targetElement = document.querySelector(targetId);
-                    if (targetElement) {
-                        window.scrollTo({
-                            top: targetElement.offsetTop - 80,
-                            behavior: 'smooth'
-                        });
-                    }
-                });
-            });
-            
-            // Клавиши для админ-панели
-            document.addEventListener('keydown', function(e) {
-                // Ctrl+Alt+A для открытия админ-панели
-                if (e.ctrlKey && e.altKey && e.key === 'a') {
-                    e.preventDefault();
-                    openAdminPanel();
-                }
-                
-                // Escape для закрытия админ-панели
-                if (e.key === 'Escape') {
-                    closeAdminPanel();
-                }
-            });
-        }
-        
-        function formatPrice(price) {
-            return parseFloat(price).toFixed(2);
-        }
-        
-        function getCategoryName(category) {
-            const names = {
-                'armor': 'Броня',
-                'weapons': 'Оружие',
-                'medicine': 'Медицина',
-                'attachments': 'Встройки',
-                'ammo': 'Патроны',
-                'throwable': 'Метательное'
-            };
-            return names[category] || category;
-        }
-        
-        function getCategoryColor(category) {
-            const colors = {
-                'armor': '#3498db',
-                'weapons': '#e74c3c',
-                'medicine': '#2ecc71',
-                'attachments': '#9b59b6',
-                'ammo': '#f39c12',
-                'throwable': '#1abc9c'
-            };
-            return colors[category] || '#666';
-        }
-        
-        function showAlert(message, type = 'info') {
-            // Удаляем старые уведомления
-            document.querySelectorAll('.alert').forEach(alert => {
-                if (alert.parentNode) alert.parentNode.removeChild(alert);
-            });
-            
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-            alertDiv.style.cssText = 'position: fixed; top: 100px; right: 20px; z-index: 9999; min-width: 300px;';
-            alertDiv.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                </div>
             `;
-            
-            document.body.appendChild(alertDiv);
-            
-            setTimeout(() => {
-                if (alertDiv.parentNode) {
-                    alertDiv.remove();
-                }
-            }, 5000);
+        });
+        
+        container.innerHTML = cartHTML;
+        
+        if (cartCount) cartCount.textContent = itemsCount;
+        if (totalItems) totalItems.textContent = itemsCount;
+        if (totalPrice) totalPrice.textContent = formatPrice(priceTotal);
+    }
+    
+    function updateCartCount() {
+        const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+        const cartCountElement = document.getElementById('cart-count');
+        if (cartCountElement) {
+            cartCountElement.textContent = count;
+        }
+    }
+    
+    // === ОФОРМЛЕНИЕ ЗАКАЗА ===
+    function showCheckoutModal() {
+        if (cart.length === 0) {
+            showAlert('Корзина пуста!', 'warning');
+            return;
         }
         
-        function showOrderNotification(success, message) {
-            const notification = document.getElementById('order-notification');
-            if (!notification) return;
+        // Обновляем сумму в модальном окне
+        const total = cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+        document.getElementById('modal-total-price').textContent = formatPrice(total);
+        
+        // Заполняем список товаров
+        const cartSummary = document.getElementById('cart-summary');
+        cartSummary.innerHTML = '';
+        
+        cart.forEach(item => {
+            const itemElement = document.createElement('div');
+            itemElement.className = 'd-flex justify-content-between align-items-center mb-2';
+            itemElement.innerHTML = `
+                <div>
+                    <small>${item.name}</small><br>
+                    <small class="text-muted">${item.quantity} × ${formatPrice(item.price)} монет</small>
+                </div>
+                <div>
+                    <small>${formatPrice(parseFloat(item.price) * item.quantity)} монет</small>
+                </div>
+            `;
+            cartSummary.appendChild(itemElement);
+        });
+        
+        // Показываем модальное окно
+        const modal = new bootstrap.Modal(document.getElementById('checkoutModal'));
+        modal.show();
+    }
+    
+    async function processOrder() {
+        const nicknameInput = document.getElementById('game-nickname');
+        const nickname = nicknameInput.value.trim();
+        
+        if (!nickname) {
+            showAlert('Введите ваш игровой никнейм!', 'danger');
+            nicknameInput.focus();
+            return;
+        }
+        
+        if (nickname.length < 3) {
+            showAlert('Никнейм должен содержать минимум 3 символа!', 'danger');
+            nicknameInput.focus();
+            return;
+        }
+        
+        // Создаем заказ
+        const orderId = 'ORD' + Date.now().toString().substr(-8);
+        const orderTime = new Date().toLocaleString('ru-RU');
+        const totalPrice = cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+        
+        const order = {
+            id: orderId,
+            nickname: nickname,
+            items: cart.map(item => ({
+                name: item.name,
+                quantity: item.quantity,
+                price: parseFloat(item.price),
+                total: parseFloat((parseFloat(item.price) * item.quantity).toFixed(2))
+            })),
+            totalPrice: parseFloat(totalPrice.toFixed(2)),
+            time: orderTime,
+            status: 'pending',
+            createdAt: new Date().toISOString()
+        };
+        
+        // Сохраняем заказ локально
+        orderHistory.push(order);
+        localStorage.setItem('divers_orders', JSON.stringify(orderHistory));
+        
+        // Очищаем корзину
+        cart = [];
+        saveCart();
+        renderCart();
+        updateCartCount();
+        
+        // Закрываем модальное окно
+        const modal = bootstrap.Modal.getInstance(document.getElementById('checkoutModal'));
+        modal.hide();
+        
+        // Показываем уведомление
+        showOrderNotification(
+            true, 
+            'Заказ оформлен! Продавец свяжется с вами в игре.'
+        );
+        
+        showAlert(`Заказ #${orderId} успешно оформлен!`, 'success');
+        
+        // Обновляем админ-панель если открыта
+        if (adminLoggedIn) {
+            loadAdminOrders();
+        }
+    }
+    
+    // === АДМИН ПАНЕЛЬ ===
+    function openAdminPanel() {
+        document.getElementById('admin-panel').classList.add('active');
+        document.getElementById('admin-overlay').classList.add('active');
+        
+        if (adminLoggedIn) {
+            showAdminTab('products');
+        }
+    }
+    
+    function closeAdminPanel() {
+        document.getElementById('admin-panel').classList.remove('active');
+        document.getElementById('admin-overlay').classList.remove('active');
+    }
+    
+    function adminLogin() {
+        const username = document.getElementById('admin-username').value;
+        const password = document.getElementById('admin-password').value;
+        
+        if (username === settings.admin.username && password === settings.admin.password) {
+            adminLoggedIn = true;
+            localStorage.setItem('admin_logged_in', 'true');
             
-            const messageElement = document.getElementById('notification-message');
-            if (messageElement) {
-                messageElement.textContent = message;
+            document.getElementById('admin-auth-section').style.display = 'none';
+            document.getElementById('admin-controls').style.display = 'block';
+            
+            showAdminTab('products');
+            loadAdminData();
+            
+            showAlert('Успешный вход в панель администратора!', 'success');
+        } else {
+            showAlert('Неверный логин или пароль!', 'danger');
+        }
+    }
+    
+    function adminLogout() {
+        adminLoggedIn = false;
+        localStorage.removeItem('admin_logged_in');
+        
+        document.getElementById('admin-auth-section').style.display = 'block';
+        document.getElementById('admin-controls').style.display = 'none';
+        
+        // Очищаем поля
+        document.getElementById('admin-username').value = '';
+        document.getElementById('admin-password').value = '';
+        
+        showAlert('Вы вышли из админ-панели', 'info');
+    }
+    
+    function showAdminTab(tabName) {
+        // Скрываем все вкладки
+        document.querySelectorAll('.admin-tab-content').forEach(tab => {
+            tab.style.display = 'none';
+        });
+        
+        // Убираем активный класс со всех кнопок
+        document.querySelectorAll('#adminTabs .nav-link').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Показываем нужную вкладку
+        document.getElementById(`admin-${tabName}-tab`).style.display = 'block';
+        
+        // Добавляем активный класс к кнопке
+        event.target.classList.add('active');
+        
+        // Загружаем данные для вкладки
+        if (tabName === 'products') {
+            loadAdminProducts();
+        } else if (tabName === 'orders') {
+            loadAdminOrders();
+        } else if (tabName === 'telegram') {
+            loadTelegramStatus();
+        }
+    }
+    
+    function loadAdminData() {
+        loadAdminProducts();
+        loadAdminOrders();
+        loadTelegramStatus();
+    }
+    
+    function loadAdminProducts() {
+        const container = document.getElementById('quick-products-list');
+        if (!container) return;
+        
+        if (products.length === 0) {
+            container.innerHTML = '<div class="text-center text-muted p-2">Нет товаров</div>';
+            return;
+        }
+        
+        let html = '';
+        
+        products.slice(0, 10).forEach(product => {
+            html += `
+                <div class="list-group-item" style="background: rgba(255,255,255,0.1); color: white; border-color: rgba(0,168,255,0.2);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small>${product.name}</small><br>
+                            <small class="text-muted">${formatPrice(product.price)} <i class="fas fa-coins"></i></small>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct('${product.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+        
+        // Обновляем статистику
+        const categories = new Set(products.map(p => p.category));
+        document.getElementById('admin-total-products').textContent = products.length;
+        document.getElementById('admin-total-categories').textContent = categories.size;
+    }
+    
+    function loadAdminOrders() {
+        const container = document.getElementById('orders-list-container');
+        if (!container) return;
+        
+        const pendingOrders = orderHistory.filter(o => o.status === 'pending');
+        
+        if (pendingOrders.length === 0) {
+            container.innerHTML = `
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-check-circle fa-3x mb-3 opacity-50"></i>
+                    <p>Нет ожидающих заказов</p>
+                </div>
+            `;
+            return;
+        }
+        
+        let html = '';
+        
+        pendingOrders.forEach(order => {
+            const orderItems = order.items.map(item => 
+                `<div class="d-flex justify-content-between">
+                    <span>${item.name} × ${item.quantity}</span>
+                    <span>${formatPrice(item.total)} монет</span>
+                </div>`
+            ).join('');
+            
+            html += `
+                <div class="order-card">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <h6 class="mb-1">Заказ #${order.id}</h6>
+                            <small class="text-muted">${order.time}</small>
+                        </div>
+                        <span class="status-badge status-pending">⏳ Ожидает</span>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <strong><i class="fas fa-user me-1"></i>${order.nickname}</strong>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <small class="text-muted">Товары:</small>
+                        <div class="mt-1">
+                            ${orderItems}
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <div>
+                            <strong>Итого: ${formatPrice(order.totalPrice)} <i class="fas fa-coins currency-coin"></i></strong>
+                        </div>
+                        <div class="order-actions">
+                            <button class="btn btn-sm btn-success" onclick="completeOrder('${order.id}')">
+                                <i class="fas fa-check"></i> Выдан
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+        
+        // Обновляем счетчик заказов
+        const badge = document.getElementById('orders-count-badge');
+        badge.textContent = pendingOrders.length;
+        badge.style.display = pendingOrders.length > 0 ? 'inline' : 'none';
+    }
+    
+    function loadTelegramStatus() {
+        const statusElement = document.getElementById('telegram-status');
+        const statusText = document.getElementById('telegram-status-text');
+        const statusDesc = document.getElementById('telegram-status-desc');
+        
+        if (settings.telegram.botToken) {
+            statusElement.className = 'telegram-status connected';
+            statusText.textContent = 'Настроен';
+            statusDesc.textContent = 'Бот готов к отправке уведомлений';
+        } else {
+            statusElement.className = 'telegram-status disconnected';
+            statusText.textContent = 'Не настроен';
+            statusDesc.textContent = 'Настройте бота для получения уведомлений';
+        }
+    }
+    
+    function showAddProductModal() {
+        // Очищаем поля
+        document.getElementById('new-product-name').value = '';
+        document.getElementById('new-product-description').value = '';
+        document.getElementById('new-product-price').value = '';
+        document.getElementById('new-product-image').value = '';
+        document.getElementById('new-product-category').value = 'armor';
+        
+        // Показываем модальное окно
+        const modal = new bootstrap.Modal(document.getElementById('addProductModal'));
+        modal.show();
+    }
+    
+    async function saveNewProduct() {
+        const name = document.getElementById('new-product-name').value.trim();
+        const description = document.getElementById('new-product-description').value.trim();
+        const price = parseFloat(document.getElementById('new-product-price').value);
+        const image = document.getElementById('new-product-image').value.trim();
+        const category = document.getElementById('new-product-category').value;
+        
+        if (!name || !description || isNaN(price) || price <= 0 || !image) {
+            showAlert('Заполните все поля корректно!', 'danger');
+            return;
+        }
+        
+        // Создаем новый товар
+        const newProduct = {
+            id: 'prod_' + Date.now(),
+            name: name,
+            description: description,
+            price: price,
+            category: category,
+            image: image,
+            features: []
+        };
+        
+        // Добавляем товар
+        products.push(newProduct);
+        saveProducts();
+        
+        // Обновляем интерфейс
+        renderProducts();
+        
+        // Обновляем админ-панель
+        loadAdminProducts();
+        
+        // Закрываем модальное окно
+        const modal = bootstrap.Modal.getInstance(document.getElementById('addProductModal'));
+        modal.hide();
+        
+        showAlert('Товар успешно добавлен!', 'success');
+    }
+    
+    async function deleteProduct(productId) {
+        if (!confirm('Удалить этот товар?')) return;
+        
+        // Удаляем товар
+        products = products.filter(p => p.id == productId);
+        saveProducts();
+        
+        // Обновляем интерфейс
+        renderProducts();
+        loadAdminProducts();
+        
+        showAlert('Товар удален!', 'warning');
+    }
+    
+    function completeOrder(orderId) {
+        const orderIndex = orderHistory.findIndex(o => o.id === orderId);
+        
+        if (orderIndex !== -1) {
+            orderHistory[orderIndex].status = 'completed';
+            localStorage.setItem('divers_orders', JSON.stringify(orderHistory));
+            loadAdminOrders();
+            showAlert(`Заказ #${orderId} отмечен как выданный`, 'success');
+        }
+    }
+    
+    function showTelegramSettings() {
+        // Заполняем поля текущими настройками
+        document.getElementById('telegram-bot-token').value = settings.telegram.botToken || '';
+        document.getElementById('telegram-chat-id').value = 
+            settings.telegram.sellers && settings.telegram.sellers.length > 0 
+            ? settings.telegram.sellers[0].chatId 
+            : '';
+        
+        // Показываем модальное окно
+        const modal = new bootstrap.Modal(document.getElementById('telegramSettingsModal'));
+        modal.show();
+    }
+    
+    async function saveTelegramSettings() {
+        const botToken = document.getElementById('telegram-bot-token').value.trim();
+        const chatId = document.getElementById('telegram-chat-id').value.trim();
+        
+        // Обновляем настройки
+        settings.telegram.botToken = botToken;
+        settings.telegram.sellers = chatId ? [{ 
+            name: 'Основной продавец', 
+            chatId: chatId, 
+            role: 'admin',
+            notificationsEnabled: true 
+        }] : [];
+        
+        // Сохраняем локально
+        saveSettings();
+        
+        // Закрываем модальное окно
+        const modal = bootstrap.Modal.getInstance(document.getElementById('telegramSettingsModal'));
+        modal.hide();
+        
+        // Обновляем статус
+        loadTelegramStatus();
+        
+        showAlert('Настройки Telegram сохранены!', 'success');
+    }
+    
+    // === ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ===
+    function setupEventListeners() {
+        // Оверлей админ-панели
+        const adminOverlay = document.getElementById('admin-overlay');
+        if (adminOverlay) {
+            adminOverlay.addEventListener('click', closeAdminPanel);
+        }
+        
+        // Плавная прокрутка
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                    
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // Клавиши для админ-панели
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+Alt+A для открытия админ-панели
+            if (e.ctrlKey && e.altKey && e.key === 'a') {
+                e.preventDefault();
+                openAdminPanel();
             }
             
-            notification.style.display = 'flex';
-            
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 5000);
+            // Escape для закрытия админ-панели
+            if (e.key === 'Escape') {
+                closeAdminPanel();
+            }
+        });
+    }
+    
+    function formatPrice(price) {
+        return parseFloat(price).toFixed(2);
+    }
+    
+    function getCategoryName(category) {
+        const names = {
+            'armor': 'Броня',
+            'weapons': 'Оружие',
+            'medicine': 'Медицина',
+            'attachments': 'Встройки',
+            'ammo': 'Патроны',
+            'throwable': 'Метательное'
+        };
+        return names[category] || category;
+    }
+    
+    function getCategoryColor(category) {
+        const colors = {
+            'armor': '#3498db',
+            'weapons': '#e74c3c',
+            'medicine': '#2ecc71',
+            'attachments': '#9b59b6',
+            'ammo': '#f39c12',
+            'throwable': '#1abc9c'
+        };
+        return colors[category] || '#666';
+    }
+    
+    function showAlert(message, type = 'info') {
+        // Удаляем старые уведомления
+        document.querySelectorAll('.alert').forEach(alert => {
+            if (alert.parentNode) alert.parentNode.removeChild(alert);
+        });
+        
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.style.cssText = 'position: fixed; top: 100px; right: 20px; z-index: 9999; min-width: 300px;';
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(alertDiv);
+        
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    }
+    
+    function showOrderNotification(success, message) {
+        const notification = document.getElementById('order-notification');
+        if (!notification) return;
+        
+        const messageElement = document.getElementById('notification-message');
+        if (messageElement) {
+            messageElement.textContent = message;
         }
         
-        // Сохранение данных при закрытии вкладки
-        window.addEventListener('beforeunload', function() {
-            saveCart();
-            localStorage.setItem('divers_orders', JSON.stringify(orderHistory));
-        });
-    </script>
+        notification.style.display = 'flex';
+        
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 5000);
+    }
+    
+    // Сохранение данных при закрытии вкладки
+    window.addEventListener('beforeunload', function() {
+        saveCart();
+        localStorage.setItem('divers_orders', JSON.stringify(orderHistory));
+    });
+</script>
 </body>
 </html>
